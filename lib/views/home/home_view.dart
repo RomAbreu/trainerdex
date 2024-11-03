@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:trainerdex/views/home/widgets/home_appbar.dart';
+import 'package:trainerdex/views/home/widgets/home_listview.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -10,6 +12,9 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold();
+    return const Scaffold(
+      appBar: HomeAppBar(),
+      body: HomeListview(),
+    );
   }
 }
