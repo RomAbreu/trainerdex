@@ -16,4 +16,12 @@ class Utils {
   static String cleanFlavorText(String flavorText) {
     return flavorText.replaceAll('\n', ' ').replaceAll('\f', ' ');
   }
+
+  static double convertDecimetersToMeters(int decimeters) {
+    return decimeters / 10.0;
+  }
+
+  static double convertHectogramsToKilograms(int hectograms) {
+    return hectograms / 10.0;
+  }
 }
