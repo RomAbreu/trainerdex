@@ -12,4 +12,8 @@ class Utils {
 
     return Color.lerp(color, Colors.black, amount)!;
   }
+
+  static String cleanFlavorText(String flavorText) {
+    return flavorText.replaceAll('\n', ' ').replaceAll('\f', ' ');
+  }
 }
