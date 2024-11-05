@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class Utils {
@@ -23,5 +25,9 @@ class Utils {
 
   static double convertHectogramsToKilograms(int hectograms) {
     return hectograms / 10.0;
+  }
+
+  static deg2rad(double deg) {
+    return deg / 180.0 * pi;
   }
 }
