@@ -30,4 +30,8 @@ class Utils {
   static deg2rad(double deg) {
     return deg / 180.0 * pi;
   }
+
+  static capitalize(String text) {
+    return text[0].toUpperCase() + text.substring(1);
+  }
 }
