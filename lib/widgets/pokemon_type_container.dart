@@ -19,7 +19,7 @@ class PokemonTypeContainer extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Text(type,
+        child: Text(type.toUpperCase(),
             style: TextStyle(color: Utils.lightenColor(pokemonColor)),
             textAlign: TextAlign.center),
       ),
