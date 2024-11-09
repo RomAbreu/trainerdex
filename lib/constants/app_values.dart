@@ -1,7 +1,13 @@
 class AppValues {
   static const double kAppBarBackgroundLightenFactor = 0.3;
-  static const double kPokemonDetailsImageHeight = 200;
+  static const double kPokemonDetailsImageHeight = 200.0;
   static const double kTextLightenFactor = 0.85;
+  static const double kSectionLeftRightPadding = 16.0;
+  static const double kSectionBottomPadding = 0.0;
+  static const double kDefaultSectionPadding = 20.0;
+  static const double kSectionTopPadding = 20.0;
+  static const double kBottomNavBarHorizontalPadding = 16.0;
+  static const double kBottomNavBarVerticalPadding = 12.0;
 
   static final Map<String, String> versionGroupMap = {
     'red-blue': 'Red/Blue',
