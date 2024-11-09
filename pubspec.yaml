@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
   graphql_flutter: ^5.1.2
+  transparent_image: ^2.0.1
+  auto_size_text: ^3.0.0
   google_fonts: ^4.0.4
   audioplayers: ^6.1.0
   google_nav_bar: ^5.0.7
@@ -59,6 +61,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
