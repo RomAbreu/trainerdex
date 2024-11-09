@@ -67,13 +67,13 @@ class PokemonEvolutionChain extends StatelessWidget {
                     tag: '${node.pokemon.id}-${option + 1}',
                     child: Image.network(
                       node.pokemon.imageUrl,
-                      width: 75,
-                      height: 75,
+                      width: 60,
+                      height: 60,
                     ),
                   ),
                   Text(node.pokemon.name,
                       style: TextStyle(
-                          fontSize: node.pokemon.name.length < 10 ? 14 : 10,
+                          fontSize: node.pokemon.name.length < 10 ? 12 : 8,
                           color: node.pokemon.color,
                           fontWeight: FontWeight.bold)),
                   Column(
@@ -81,7 +81,7 @@ class PokemonEvolutionChain extends StatelessWidget {
                       for (final type in node.pokemon.types) ...[
                         Text(type.toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               color: Colors.black54,
                             )),
                       ]
