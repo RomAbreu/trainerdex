@@ -2,7 +2,7 @@ class PokemonAbility {
   final String name;
   final bool isHidden;
   final String? flavorText;
-  final String effect;
+  final String? effect;
 
   PokemonAbility({
     required this.name,
