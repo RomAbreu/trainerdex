@@ -6,8 +6,12 @@ import 'package:trainerdex/views/pokemon_details/pokemon_details_view.dart';
 class PokemonEvolutionChain extends StatelessWidget {
   final PokemonNode pokemonNode;
   final int pokemonId;
+  final int option;
   const PokemonEvolutionChain(
-      {super.key, required this.pokemonNode, required this.pokemonId});
+      {super.key,
+      required this.pokemonNode,
+      required this.pokemonId,
+      this.option = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,7 @@ class PokemonEvolutionChain extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (_) => PokemonDetailsView(
                             pokemon: node.pokemon,
+                            option: option + 1,
                           )));
             },
             child: Container(
@@ -58,10 +63,13 @@ class PokemonEvolutionChain extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Image.network(
-                    node.pokemon.imageUrl,
-                    width: 75,
-                    height: 75,
+                  Hero(
+                    tag: '${node.pokemon.id}-${option + 1}',
+                    child: Image.network(
+                      node.pokemon.imageUrl,
+                      width: 75,
+                      height: 75,
+                    ),
                   ),
                   Text(node.pokemon.name,
                       style: TextStyle(

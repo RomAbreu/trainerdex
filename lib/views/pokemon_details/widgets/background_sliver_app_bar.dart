@@ -6,8 +6,10 @@ import 'package:trainerdex/widgets/pokemon_type_container.dart';
 
 class BackgroundSliverAppBar extends StatelessWidget {
   final Pokemon pokemon;
+  final int option;
 
-  const BackgroundSliverAppBar({super.key, required this.pokemon});
+  const BackgroundSliverAppBar(
+      {super.key, required this.pokemon, this.option = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +17,11 @@ class BackgroundSliverAppBar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.network(pokemon.imageUrl,
-              height: AppValues.kPokemonDetailsImageHeight),
+          Hero(
+            tag: '${pokemon.id}-$option',
+            child: Image.network(pokemon.imageUrl,
+                height: AppValues.kPokemonDetailsImageHeight),
+          ),
           Text(
             pokemon.name,
             textAlign: TextAlign.center,
