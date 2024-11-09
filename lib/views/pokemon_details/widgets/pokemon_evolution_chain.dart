@@ -47,12 +47,7 @@ class PokemonEvolutionChain extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (_) => PokemonDetailsView(
-                            pokemonId: node.pokemon.id,
-                            pokemonName: node.pokemon.name,
-                            pokemonGenus: node.pokemon.genus,
-                            pokemonTypes: node.pokemon.types,
-                            pokemonColor: node.pokemon.color,
-                            imageUrl: node.pokemon.imageUrl,
+                            pokemon: node.pokemon,
                           )));
             },
             child: Container(

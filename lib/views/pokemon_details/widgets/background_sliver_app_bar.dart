@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:trainerdex/constants/app_values.dart';
+import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/utils.dart';
 import 'package:trainerdex/widgets/pokemon_type_container.dart';
 
 class BackgroundSliverAppBar extends StatelessWidget {
-  final int pokemonId;
-  final String pokemonName;
-  final String pokemonGenus;
-  final List<String> pokemonTypes;
-  final String imageUrl;
-  final Color pokemonColor;
+  final Pokemon pokemon;
 
-  const BackgroundSliverAppBar(
-      {super.key,
-      required this.pokemonId,
-      required this.pokemonName,
-      required this.pokemonGenus,
-      required this.pokemonTypes,
-      required this.imageUrl,
-      required this.pokemonColor});
+  const BackgroundSliverAppBar({super.key, required this.pokemon});
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +15,32 @@ class BackgroundSliverAppBar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.network(imageUrl, height: AppValues.kPokemonDetailsImageHeight),
+          Image.network(pokemon.imageUrl,
+              height: AppValues.kPokemonDetailsImageHeight),
           Text(
-            pokemonName,
+            pokemon.name,
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 50,
-                color: Utils.lightenColor(pokemonColor),
+                color: Utils.lightenColor(pokemon.color),
                 fontWeight: FontWeight.bold),
           ),
           Text(
-            pokemonGenus,
+            pokemon.genus,
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 20,
-                color: Utils.lightenColor(pokemonColor),
+                color: Utils.lightenColor(pokemon.color),
                 fontWeight: FontWeight.w300),
           ),
           const SizedBox(height: 15),
           Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: pokemonTypes
+              children: pokemon.types
                   .map((t) => Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: PokemonTypeContainer(
-                            type: t, pokemonColor: pokemonColor),
+                            type: t, pokemonColor: pokemon.color),
                       ))
                   .toList())
         ],
