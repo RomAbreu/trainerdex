@@ -48,12 +48,14 @@ class PokemonEvolutionChain extends StatelessWidget {
               if (pokemonId == node.pokemon.id) return;
 
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => PokemonDetailsView(
-                            pokemon: node.pokemon,
-                            option: option + 1,
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PokemonDetailsView(
+                    pokemon: node.pokemon,
+                    option: option + 1,
+                  ),
+                ),
+              );
             },
             child: Container(
               decoration: BoxDecoration(
@@ -79,11 +81,13 @@ class PokemonEvolutionChain extends StatelessWidget {
                   Column(
                     children: [
                       for (final type in node.pokemon.types) ...[
-                        Text(type.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.black54,
-                            )),
+                        Text(
+                          type.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black54,
+                          ),
+                        ),
                       ]
                     ],
                   )
