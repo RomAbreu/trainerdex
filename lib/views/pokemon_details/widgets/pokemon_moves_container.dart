@@ -84,7 +84,7 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13)),
+                        fontSize: 12)),
               ),
             ),
             Expanded(
