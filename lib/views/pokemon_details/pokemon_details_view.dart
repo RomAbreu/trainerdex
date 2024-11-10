@@ -10,7 +10,7 @@ import 'package:trainerdex/models/pokemon_initial_data.dart';
 import 'package:trainerdex/models/pokemon_move.dart';
 import 'package:trainerdex/models/pokemon_node.dart';
 import 'package:trainerdex/utils.dart';
-import 'package:trainerdex/views/pokemon_details/pokemon_details_repository.dart';
+import 'package:trainerdex/repositories/pokemon_details_repository.dart';
 import 'package:trainerdex/views/pokemon_details/widgets/background_sliver_app_bar.dart';
 import 'package:trainerdex/views/pokemon_details/widgets/pokemon_abilities_container.dart';
 import 'package:trainerdex/views/pokemon_details/widgets/pokemon_base_stats.dart';
@@ -96,7 +96,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: widget.pokemon.name,
+                    text: Utils.formatPokemonName(widget.pokemon),
                     style: TextStyle(
                       fontFamily: GoogleFonts.manrope().fontFamily,
                       fontSize: 20,
@@ -108,7 +108,8 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
                     ),
                   ),
                   TextSpan(
-                    text: ' #${widget.pokemon.id.toString().padLeft(3, '0')}',
+                    text:
+                        ' #${widget.pokemon.speciesId.toString().padLeft(3, '0')}',
                     style: TextStyle(
                       color: Utils.lightenColor(
                         widget.pokemon.color,
@@ -184,7 +185,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
                             pokemonColor: widget.pokemon.color,
                             child: Text(
                               _flavorText!.isEmpty
-                                  ? '${widget.pokemon.name} has no PokéDex entry for this version'
+                                  ? '${Utils.formatPokemonName(widget.pokemon)} has no PokéDex entry for this version'
                                   : _flavorText!,
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 16),

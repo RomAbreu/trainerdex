@@ -1,6 +1,6 @@
 class AppValues {
   static const double kAppBarBackgroundLightenFactor = 0.3;
-  static const double kPokemonDetailsImageHeight = 200.0;
+  static const double kPokemonDetailsImageHeight = 150.0;
   static const double kTextLightenFactor = 0.85;
   static const double kSectionLeftRightPadding = 16.0;
   static const double kSectionBottomPadding = 0.0;

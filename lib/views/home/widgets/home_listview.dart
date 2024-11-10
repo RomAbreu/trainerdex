@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
-import 'package:trainerdex/entities/pokemon.dart';
+import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/repositories/pokemon_repository.dart';
 import 'package:trainerdex/views/home/widgets/home_list_item.dart';
+import 'package:trainerdex/views/pokemon_details/pokemon_details_view.dart';
 
 class HomeListview extends StatefulWidget {
   const HomeListview({super.key});
@@ -87,12 +88,24 @@ class ListItem extends StatelessWidget {
         height: 114,
         child: Card.filled(
           color: Color.alphaBlend(Colors.white.withOpacity(0.5), mainColor),
-          child: Row(
-            children: [
-              ImageSide(pokemon: pokemon, color: mainColor.withOpacity(0.7)),
-              const SizedBox(width: 10),
-              InformationSide(pokemon: pokemon),
-            ],
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            splashColor: mainColor.withOpacity(0.3),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PokemonDetailsView(pokemon: pokemon),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                ImageSide(pokemon: pokemon, color: mainColor.withOpacity(0.7)),
+                const SizedBox(width: 10),
+                InformationSide(pokemon: pokemon),
+              ],
+            ),
           ),
         ),
       ),

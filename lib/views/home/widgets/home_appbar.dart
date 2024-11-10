@@ -10,12 +10,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: <Widget>[
         IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.search),
+          icon: Image.asset('assets/icon-pokeball-closed.png'),
         ),
         IconButton(
           onPressed: () {},
-          icon: Image.asset('assets/icon-pokeball-closed.png'),
-        )
+          icon: const Icon(Icons.filter_alt_outlined),
+          iconSize: 35,
+        ),
+        const SizedBox(width: 5),
       ],
     );
   }
