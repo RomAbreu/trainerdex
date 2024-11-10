@@ -1,5 +1,5 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:trainerdex/entities/pokemon.dart';
+import 'package:trainerdex/models/pokemon.dart';
 
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
@@ -13,6 +13,10 @@ class PokemonRepository {
           }
           pokemon_v2_pokemonspecy {
             pokemon_v2_pokemonspeciesnames(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+              name
+              genus
+            }
+            pokemon_v2_pokemoncolor {
               name
             }
           }
