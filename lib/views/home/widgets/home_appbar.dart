@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:trainerdex/views/home/widgets/home_filter.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({super.key});
+  final VoidCallback refreshList;
+  final VoidCallback updateOffset;
+  final Future<void> Function() fetchPokemons;
+  final List<String> typeFilterArgs;
+
+  const HomeAppBar({
+    super.key,
+    required this.fetchPokemons,
+    required this.refreshList,
+    required this.updateOffset,
+    required this.typeFilterArgs,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +25,16 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Image.asset('assets/icon-pokeball-closed.png'),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) => FilterBottomSheetContent(
+                      fetchPokemons: fetchPokemons,
+                      refreshList: refreshList,
+                      updateOffset: updateOffset,
+                      typeFilterArgs: typeFilterArgs,
+                    ));
+          },
           icon: const Icon(Icons.filter_alt_outlined),
           iconSize: 35,
         ),
