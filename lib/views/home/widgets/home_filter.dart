@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
+import 'package:trainerdex/models/generation_info.dart';
+import 'package:trainerdex/repositories/pokemon_general_repository.dart';
 
 class FilterBottomSheetContent extends StatefulWidget {
   final List<Tab> tabs = const [
@@ -13,6 +16,8 @@ class FilterBottomSheetContent extends StatefulWidget {
   final VoidCallback updateOffset;
   final Future<void> Function() fetchPokemons;
   final List<String> typeFilterArgs;
+  final int Function() selectedGeneration;
+  final void Function(int) onChangedGeneration;
 
   const FilterBottomSheetContent({
     super.key,
@@ -20,6 +25,8 @@ class FilterBottomSheetContent extends StatefulWidget {
     required this.refreshList,
     required this.updateOffset,
     required this.typeFilterArgs,
+    required this.selectedGeneration,
+    required this.onChangedGeneration,
   });
 
   @override
@@ -71,7 +78,10 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
                 fetchPokemons: widget.fetchPokemons,
                 typeFilterArgs: widget.typeFilterArgs,
               ),
-              const Center(child: Text('Generation')),
+              GenerationView(
+                selectedGeneration: widget.selectedGeneration,
+                onChangedGeneration: widget.onChangedGeneration,
+              ),
               const Center(child: Text('Abilities')),
               const Center(child: Text('Power')),
             ],
@@ -126,6 +136,88 @@ class _TypeGridViewState extends State<TypeGridView> {
           ),
       ],
     );
+  }
+}
+
+class GenerationView extends StatefulWidget {
+  final int Function() selectedGeneration;
+  final void Function(int) onChangedGeneration;
+
+  const GenerationView({
+    super.key,
+    required this.selectedGeneration,
+    required this.onChangedGeneration,
+  });
+
+  @override
+  State<GenerationView> createState() => _GenerationViewState();
+}
+
+class _GenerationViewState extends State<GenerationView> {
+  late final List<GenerationInfo> _generations = [];
+  late int _currentSelection;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentSelection = widget.selectedGeneration();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadGenerations(context);
+  }
+
+  Future<void> _loadGenerations(BuildContext context) async {
+    final List<GenerationInfo> generations =
+        await PokemonRepository.getGenerations(
+            GraphQLProvider.of(context).value);
+    setState(() {
+      _generations.addAll(generations);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        for (final generation in _generations)
+          Card.outlined(
+            color: _currentSelection == generation.id
+                ? Theme.of(context).primaryColor.withOpacity(0.1)
+                : Colors.transparent,
+            margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+            child: InkWell(
+              splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(5),
+              onTap: () => _changeGeneration(generation.id),
+              child: Row(
+                children: [
+                  Radio(
+                    value: generation.id,
+                    groupValue: _currentSelection,
+                    onChanged: (_) => _changeGeneration(generation.id),
+                    toggleable: true,
+                  ),
+                  const Spacer(),
+                  Text(generation.name, style: const TextStyle(fontSize: 17)),
+                  const SizedBox(width: 30)
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _changeGeneration(int value) {
+    setState(() {
+      (_currentSelection == value)
+          ? _currentSelection = 0
+          : _currentSelection = value;
+    });
+    widget.onChangedGeneration(_currentSelection);
   }
 }
 

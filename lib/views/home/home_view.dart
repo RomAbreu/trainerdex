@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/models/pokemon.dart';
-import 'package:trainerdex/repositories/pokemon_repository.dart';
+import 'package:trainerdex/repositories/pokemon_general_repository.dart';
 import 'package:trainerdex/views/home/widgets/home_appbar.dart';
 import 'package:trainerdex/views/home/widgets/home_list_view.dart';
 
@@ -16,6 +16,7 @@ class _HomeViewState extends State<HomeView> {
   int _currentOffset = 0;
   final List<Pokemon> _pokemons = [];
   final List<String> _typeFilterArgs = [];
+  int _selectedGeneration = 0;
 
   // Methods for updating ListView
   void updateOffset() {
@@ -43,6 +44,16 @@ class _HomeViewState extends State<HomeView> {
       _pokemons.addAll(pokemons);
     });
   }
+
+  void setGeneration(int value) {
+    setState(() {
+      _selectedGeneration = value;
+    });
+  }
+
+  int getGeneration() {
+    return _selectedGeneration;
+  }
   // Methods for updating ListView
 
   @override
@@ -53,6 +64,8 @@ class _HomeViewState extends State<HomeView> {
         refreshList: refreshList,
         updateOffset: updateOffset,
         typeFilterArgs: _typeFilterArgs,
+        selectedGeneration: getGeneration,
+        onChangedGeneration: setGeneration,
       ),
       body: HomeListview(
         pokemons: _pokemons,

@@ -1,4 +1,5 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:trainerdex/models/generation_info.dart';
 import 'package:trainerdex/models/pokemon.dart';
 
 class PokemonRepository {
@@ -41,7 +42,6 @@ class PokemonRepository {
     """;
 
     final filters = _prepareFilters(typeFilter, generationFilter);
-
     final QueryResult result =
         await client.query(QueryOptions(document: gql(query), variables: {
       'offset': offset,
@@ -65,5 +65,24 @@ class PokemonRepository {
     }
 
     return filters;
+  }
+
+  static Future<List<GenerationInfo>> getGenerations(
+      GraphQLClient client) async {
+    const String query = """
+      query obtainAllGenerations {
+        pokemon_v2_generation {
+          id
+          pokemon_v2_generationnames(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+            name
+          }
+        }
+      }
+      """;
+
+    final QueryResult result =
+        await client.query(QueryOptions(document: gql(query)));
+    final List<dynamic> data = result.data?['pokemon_v2_generation'] ?? [];
+    return data.map((json) => GenerationInfo.fromJson(json)).toList();
   }
 }
