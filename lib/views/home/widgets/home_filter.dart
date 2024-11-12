@@ -81,6 +81,8 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
               GenerationView(
                 selectedGeneration: widget.selectedGeneration,
                 onChangedGeneration: widget.onChangedGeneration,
+                refreshList: widget.refreshList,
+                fetchPokemons: widget.fetchPokemons,
               ),
               const Center(child: Text('Abilities')),
               const Center(child: Text('Power')),
@@ -142,11 +144,15 @@ class _TypeGridViewState extends State<TypeGridView> {
 class GenerationView extends StatefulWidget {
   final int Function() selectedGeneration;
   final void Function(int) onChangedGeneration;
+  final VoidCallback refreshList;
+  final Future<void> Function() fetchPokemons;
 
   const GenerationView({
     super.key,
     required this.selectedGeneration,
     required this.onChangedGeneration,
+    required this.refreshList,
+    required this.fetchPokemons,
   });
 
   @override
@@ -156,6 +162,7 @@ class GenerationView extends StatefulWidget {
 class _GenerationViewState extends State<GenerationView> {
   late final List<GenerationInfo> _generations = [];
   late int _currentSelection;
+  bool _isFetching = true;
 
   @override
   void initState() {
@@ -166,15 +173,16 @@ class _GenerationViewState extends State<GenerationView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadGenerations(context);
+    _fetchGenerations(context);
   }
 
-  Future<void> _loadGenerations(BuildContext context) async {
+  Future<void> _fetchGenerations(BuildContext context) async {
     final List<GenerationInfo> generations =
         await PokemonRepository.getGenerations(
             GraphQLProvider.of(context).value);
     setState(() {
       _generations.addAll(generations);
+      _isFetching = false;
     });
   }
 
@@ -182,31 +190,44 @@ class _GenerationViewState extends State<GenerationView> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        for (final generation in _generations)
-          Card.outlined(
-            color: _currentSelection == generation.id
-                ? Theme.of(context).primaryColor.withOpacity(0.1)
-                : Colors.transparent,
-            margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
-            child: InkWell(
-              splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(5),
-              onTap: () => _changeGeneration(generation.id),
-              child: Row(
+        (_isFetching)
+            ? const SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : Column(
                 children: [
-                  Radio(
-                    value: generation.id,
-                    groupValue: _currentSelection,
-                    onChanged: (_) => _changeGeneration(generation.id),
-                    toggleable: true,
-                  ),
-                  const Spacer(),
-                  Text(generation.name, style: const TextStyle(fontSize: 17)),
-                  const SizedBox(width: 30)
+                  for (final generation in _generations)
+                    Card.outlined(
+                      color: _currentSelection == generation.id
+                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                          : Colors.transparent,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 3, horizontal: 10),
+                      child: InkWell(
+                        splashColor:
+                            Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(5),
+                        onTap: () => _changeGeneration(generation.id),
+                        child: Row(
+                          children: [
+                            Radio(
+                              value: generation.id,
+                              groupValue: _currentSelection,
+                              onChanged: (_) =>
+                                  _changeGeneration(generation.id),
+                              toggleable: true,
+                            ),
+                            const Spacer(),
+                            Text(generation.name,
+                                style: const TextStyle(fontSize: 17)),
+                            const SizedBox(width: 30)
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ),
-          ),
       ],
     );
   }
@@ -218,6 +239,8 @@ class _GenerationViewState extends State<GenerationView> {
           : _currentSelection = value;
     });
     widget.onChangedGeneration(_currentSelection);
+    widget.refreshList();
+    widget.fetchPokemons();
   }
 }
 

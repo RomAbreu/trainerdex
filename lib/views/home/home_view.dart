@@ -38,6 +38,7 @@ class _HomeViewState extends State<HomeView> {
       GraphQLProvider.of(context).value,
       _currentOffset,
       _typeFilterArgs,
+      _selectedGeneration,
     );
 
     setState(() {

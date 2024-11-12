@@ -5,7 +5,7 @@ import 'package:trainerdex/models/pokemon.dart';
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
       GraphQLClient client, int offset,
-      [List<String>? typeFilter, List<String>? generationFilter]) async {
+      [List<String>? typeFilter, int? generationFilter]) async {
     const String query = """
       query samplePokeAPIquery(\$offset: Int!, \$where: pokemon_v2_pokemon_bool_exp) {
         pokemon_v2_pokemon(offset: \$offset, limit: 12, order_by: {pokemon_species_id: asc}, where: \$where) {
@@ -53,7 +53,7 @@ class PokemonRepository {
   }
 
   static Map<String, dynamic> _prepareFilters(
-      [List<String>? typeFilter, List<String>? generationFilter]) {
+      [List<String>? typeFilter, int? generationFilter]) {
     final filters = <String, dynamic>{};
 
     if (typeFilter != null && typeFilter.isNotEmpty) {
@@ -61,6 +61,12 @@ class PokemonRepository {
         'pokemon_v2_type': {
           'name': {'_in': typeFilter}
         }
+      };
+    }
+
+    if (generationFilter != null && generationFilter > 0) {
+      filters['pokemon_v2_pokemonspecy'] = {
+        'generation_id': {'_eq': generationFilter}
       };
     }
 
