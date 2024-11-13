@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:trainerdex/constants/pokemon_types_util.dart';
-import 'package:trainerdex/entities/pokemon.dart';
-import 'package:trainerdex/repositories/pokemon_repository.dart';
+import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/views/home/widgets/home_list_item.dart';
+import 'package:trainerdex/views/pokemon_details/pokemon_details_view.dart';
 
 class HomeListview extends StatefulWidget {
-  const HomeListview({super.key});
+  final List<Pokemon> pokemons;
+  final VoidCallback refreshList;
+  final VoidCallback updateOffset;
+  final Future<void> Function() fetchPokemons;
+
+  const HomeListview({
+    super.key,
+    required this.pokemons,
+    required this.fetchPokemons,
+    required this.refreshList,
+    required this.updateOffset,
+  });
 
   @override
   State<HomeListview> createState() => _HomeListviewState();
 }
 
 class _HomeListviewState extends State<HomeListview> {
-  int _currentOffset = 0;
   late ScrollController controller;
   late GraphQLClient client;
-  final List<Pokemon> _pokemons = [];
 
   @override
   void initState() {
@@ -27,8 +35,7 @@ class _HomeListviewState extends State<HomeListview> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    client = GraphQLProvider.of(context).value;
-    _fetchPokemons();
+    widget.fetchPokemons();
   }
 
   @override
@@ -40,29 +47,19 @@ class _HomeListviewState extends State<HomeListview> {
   void _scrollListener() {
     if (controller.offset >= controller.position.maxScrollExtent &&
         !controller.position.outOfRange) {
-      setState(() {
-        _currentOffset += 12;
-      });
-      _fetchPokemons();
+      widget.updateOffset();
+      widget.fetchPokemons();
     }
-  }
-
-  Future<void> _fetchPokemons() async {
-    final List<Pokemon> pokemons =
-        await PokemonRepository.getPokemonsWithOffset(client, _currentOffset);
-    setState(() {
-      _pokemons.addAll(pokemons);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       controller: controller,
-      itemCount: _pokemons.length + 1,
+      itemCount: widget.pokemons.length + 1,
       itemBuilder: (context, index) {
-        if (index < _pokemons.length) {
-          return ListItem(pokemon: _pokemons[index]);
+        if (index < widget.pokemons.length) {
+          return ListItem(pokemon: widget.pokemons[index]);
         }
         return const Padding(
           padding: EdgeInsets.all(8.0),
@@ -79,7 +76,7 @@ class ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color mainColor = typeColors[pokemon.types.first]!;
+    final Color mainColor = pokemon.color;
 
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 2.0),
@@ -87,12 +84,24 @@ class ListItem extends StatelessWidget {
         height: 114,
         child: Card.filled(
           color: Color.alphaBlend(Colors.white.withOpacity(0.5), mainColor),
-          child: Row(
-            children: [
-              ImageSide(pokemon: pokemon, color: mainColor.withOpacity(0.7)),
-              const SizedBox(width: 10),
-              InformationSide(pokemon: pokemon),
-            ],
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            splashColor: mainColor.withOpacity(0.3),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PokemonDetailsView(pokemon: pokemon),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                ImageSide(pokemon: pokemon, color: mainColor.withOpacity(0.7)),
+                const SizedBox(width: 10),
+                InformationSide(pokemon: pokemon),
+              ],
+            ),
           ),
         ),
       ),

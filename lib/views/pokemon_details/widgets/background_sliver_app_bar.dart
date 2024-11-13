@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:trainerdex/constants/app_values.dart';
 import 'package:trainerdex/models/pokemon.dart';
@@ -16,10 +17,13 @@ class BackgroundSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const SizedBox(height: 80),
           Hero(
             tag: '${pokemon.id}-$option',
             child: Image.network(
@@ -27,13 +31,16 @@ class BackgroundSliverAppBar extends StatelessWidget {
               height: AppValues.kPokemonDetailsImageHeight,
             ),
           ),
-          Text(
-            pokemon.name,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 50,
-              color: Utils.lightenColor(pokemon.color),
-              fontWeight: FontWeight.bold,
+          Container(
+            constraints: BoxConstraints(maxWidth: size.width, maxHeight: 120),
+            child: AutoSizeText(
+              Utils.formatPokemonName(pokemon),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 50,
+                color: Utils.lightenColor(pokemon.color),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Text(

@@ -1,5 +1,4 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:trainerdex/constants/app_theme.dart';
 import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/models/pokemon_ability.dart';
 import 'package:trainerdex/models/pokemon_initial_data.dart';
@@ -291,6 +290,7 @@ class PokemonDetailsRepository {
                 }
                 pokemon_v2_pokemons(limit: 1) {
                   id
+                  pokemon_species_id
                   pokemon_v2_pokemonspecy {
                     pokemon_v2_pokemonspeciesnames(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
                       name
@@ -300,6 +300,15 @@ class PokemonDetailsRepository {
                       name
                     }
                     pokemon_v2_pokemoncolor {
+                      name
+                    }
+                  }
+                  pokemon_v2_pokemonforms {
+                    pokemon_v2_pokemonformnames(where: {_or: [
+                      { pokemon_v2_language: { name: { _eq: "de" } } },
+                      { pokemon_v2_language: { name: { _eq: "en" } } }
+                      ]})
+                    {
                       name
                     }
                   }
@@ -355,7 +364,7 @@ class PokemonDetailsRepository {
 
   PokemonNode _createPokemonNode(dynamic evolution) {
     return PokemonNode(
-      pokemon: _extractPokemon(evolution['pokemon_v2_pokemons'][0]),
+      pokemon: Pokemon.fromJson(evolution['pokemon_v2_pokemons'][0]),
       evolutions: null,
       evolutionIds: (evolution['pokemon_v2_pokemonspecies'] as List)
           .map((pokemon) => pokemon['id'] as int)
@@ -375,28 +384,5 @@ class PokemonDetailsRepository {
     }
 
     return nextEvolutions;
-  }
-
-  Pokemon _extractPokemon(dynamic pokemonInfo) {
-    final id = pokemonInfo['id'];
-    final name = pokemonInfo['pokemon_v2_pokemonspecy']
-        ['pokemon_v2_pokemonspeciesnames'][0]['name'];
-    final genus = pokemonInfo['pokemon_v2_pokemonspecy']
-        ['pokemon_v2_pokemonspeciesnames'][0]['genus'];
-    final types = (pokemonInfo['pokemon_v2_pokemontypes'] as List)
-        .map((type) => type['pokemon_v2_type']['name'] as String)
-        .toList();
-    final color = AppTheme.pokemonColors[pokemonInfo['pokemon_v2_pokemonspecy']
-        ['pokemon_v2_pokemoncolor']['name']];
-    final imageUrl = pokemonInfo['pokemon_v2_pokemonsprites'][0]['sprites'];
-
-    return Pokemon(
-      id: id,
-      name: name,
-      genus: genus,
-      types: types,
-      color: color!,
-      imageUrl: imageUrl,
-    );
   }
 }
