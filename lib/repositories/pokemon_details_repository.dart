@@ -296,9 +296,6 @@ class PokemonDetailsRepository {
                       name
                       genus
                     }
-                    pokemon_v2_generation {
-                      name
-                    }
                     pokemon_v2_pokemoncolor {
                       name
                     }
