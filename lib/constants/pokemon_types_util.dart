@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainerdex/constants/app_theme.dart';
 
 // CONSTANTS
 enum PokemonType {
@@ -21,28 +22,6 @@ enum PokemonType {
   dark,
   fairy,
 }
-
-const Map<String, Color> typeColors = {
-  'normal': Color(0xFF929da3),
-  'fighting': Color(0xFFce416b),
-  'flying': Color(0xFF8fa9de),
-  'rock': Color(0xFFc5b78c),
-  'ground': Color(0xFFd97845),
-  'poison': Color(0xFFaa6bc8),
-  'bug': Color(0xFF91c12f),
-  'ghost': Color(0xFF5269ad),
-  'steel': Color(0xFF5a8ea2),
-  'fire': Color(0xFFff9d55),
-  'water': Color(0xFF5090d6),
-  'grass': Color(0xFF63bc5a),
-  'ice': Color(0xFF73cec0),
-  'psychic': Color(0xFFfa7179),
-  'electric': Color(0xFFf4d23c),
-  'dragon': Color(0xFF0b6dc3),
-  'dark': Color(0xFF5a5465),
-  'fairy': Color(0xFFec8fe6),
-  '???': Color(0xFF68a090),
-};
 
 // WIDGETS
 class TypeChip extends StatefulWidget {
@@ -76,7 +55,7 @@ class _TypeChipState extends State<TypeChip> {
   void initState() {
     super.initState();
 
-    color = typeColors[widget.type] ?? typeColors['???']!;
+    color = AppTheme.typeColors[widget.type] ?? AppTheme.typeColors['???']!;
 
     if (widget.isClickable == true && isSelected == false) {
       color = Colors.grey;
@@ -94,7 +73,7 @@ class _TypeChipState extends State<TypeChip> {
         labelStyle: _typeStyle,
         backgroundColor: (widget.isClickable == true)
             ? color
-            : typeColors[widget.type] ?? typeColors['???']!,
+            : AppTheme.typeColors[widget.type] ?? AppTheme.typeColors['???']!,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: Colors.transparent),
@@ -108,8 +87,9 @@ class _TypeChipState extends State<TypeChip> {
       return GestureDetector(
         onTap: () {
           setState(() {
-            color =
-                (color == Colors.grey) ? typeColors[widget.type]! : Colors.grey;
+            color = (color == Colors.grey)
+                ? AppTheme.typeColors[widget.type]!
+                : Colors.grey;
             colorChanged = !colorChanged;
           });
           if (widget.afterAction != null) widget.afterAction!();
