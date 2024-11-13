@@ -18,6 +18,8 @@ class FilterBottomSheetContent extends StatefulWidget {
   final List<String> typeFilterArgs;
   final int Function() selectedGeneration;
   final void Function(int) onChangedGeneration;
+  final int pokemonsCounter;
+  final Future<void> Function() refreshCounter;
 
   const FilterBottomSheetContent({
     super.key,
@@ -27,6 +29,8 @@ class FilterBottomSheetContent extends StatefulWidget {
     required this.typeFilterArgs,
     required this.selectedGeneration,
     required this.onChangedGeneration,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
   });
 
   @override
@@ -77,12 +81,16 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
                 refreshList: widget.refreshList,
                 fetchPokemons: widget.fetchPokemons,
                 typeFilterArgs: widget.typeFilterArgs,
+                pokemonsCounter: widget.pokemonsCounter,
+                refreshCounter: widget.refreshCounter,
               ),
               GenerationView(
                 selectedGeneration: widget.selectedGeneration,
                 onChangedGeneration: widget.onChangedGeneration,
                 refreshList: widget.refreshList,
                 fetchPokemons: widget.fetchPokemons,
+                pokemonsCounter: widget.pokemonsCounter,
+                refreshCounter: widget.refreshCounter,
               ),
               const Center(child: Text('Abilities')),
               const Center(child: Text('Power')),
@@ -99,12 +107,16 @@ class TypeGridView extends StatefulWidget {
   final VoidCallback refreshList;
   final Future<void> Function() fetchPokemons;
   final List<String> typeFilterArgs;
+  final int pokemonsCounter;
+  final Future<void> Function() refreshCounter;
 
   const TypeGridView({
     super.key,
     required this.refreshList,
     required this.fetchPokemons,
     required this.typeFilterArgs,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
   });
 
   @override
@@ -134,6 +146,7 @@ class _TypeGridViewState extends State<TypeGridView> {
               });
               widget.refreshList();
               widget.fetchPokemons();
+              widget.refreshCounter();
             },
           ),
       ],
@@ -146,6 +159,8 @@ class GenerationView extends StatefulWidget {
   final void Function(int) onChangedGeneration;
   final VoidCallback refreshList;
   final Future<void> Function() fetchPokemons;
+  final int pokemonsCounter;
+  final Future<void> Function() refreshCounter;
 
   const GenerationView({
     super.key,
@@ -153,6 +168,8 @@ class GenerationView extends StatefulWidget {
     required this.onChangedGeneration,
     required this.refreshList,
     required this.fetchPokemons,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
   });
 
   @override
@@ -208,14 +225,19 @@ class _GenerationViewState extends State<GenerationView> {
                         splashColor:
                             Theme.of(context).primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(5),
-                        onTap: () => _changeGeneration(generation.id),
+                        onTap: () {
+                          _changeGeneration(generation.id);
+                          widget.refreshCounter();
+                        },
                         child: Row(
                           children: [
                             Radio(
                               value: generation.id,
                               groupValue: _currentSelection,
-                              onChanged: (_) =>
-                                  _changeGeneration(generation.id),
+                              onChanged: (_) {
+                                _changeGeneration(generation.id);
+                                widget.refreshCounter();
+                              },
                               toggleable: true,
                             ),
                             const Spacer(),

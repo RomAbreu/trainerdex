@@ -8,7 +8,9 @@ class HomeListview extends StatefulWidget {
   final List<Pokemon> pokemons;
   final VoidCallback refreshList;
   final VoidCallback updateOffset;
+  final int pokemonsCounter;
   final Future<void> Function() fetchPokemons;
+  final Future<void> Function() refreshCounter;
 
   const HomeListview({
     super.key,
@@ -16,6 +18,8 @@ class HomeListview extends StatefulWidget {
     required this.fetchPokemons,
     required this.refreshList,
     required this.updateOffset,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
   });
 
   @override
@@ -36,6 +40,7 @@ class _HomeListviewState extends State<HomeListview> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     widget.fetchPokemons();
+    widget.refreshCounter();
   }
 
   @override
@@ -61,10 +66,13 @@ class _HomeListviewState extends State<HomeListview> {
         if (index < widget.pokemons.length) {
           return ListItem(pokemon: widget.pokemons[index]);
         }
-        return const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Center(child: CircularProgressIndicator()),
-        );
+        if (widget.pokemonsCounter > widget.pokemons.length) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return null;
       },
     );
   }
