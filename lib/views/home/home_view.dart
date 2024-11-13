@@ -17,6 +17,7 @@ class _HomeViewState extends State<HomeView> {
   final List<Pokemon> _pokemons = [];
   final List<String> _typeFilterArgs = [];
   int _selectedGeneration = 0;
+  int _totalPokemonsCounter = 0;
 
   // Methods for updating ListView
   void updateOffset() {
@@ -55,6 +56,18 @@ class _HomeViewState extends State<HomeView> {
   int getGeneration() {
     return _selectedGeneration;
   }
+
+  Future<void> countPokemons() async {
+    final counter = await PokemonRepository.countPokemons(
+      GraphQLProvider.of(context).value,
+      _typeFilterArgs,
+      _selectedGeneration,
+    );
+
+    setState(() {
+      _totalPokemonsCounter = counter;
+    });
+  }
   // Methods for updating ListView
 
   @override
@@ -67,12 +80,16 @@ class _HomeViewState extends State<HomeView> {
         typeFilterArgs: _typeFilterArgs,
         selectedGeneration: getGeneration,
         onChangedGeneration: setGeneration,
+        pokemonsCounter: _totalPokemonsCounter,
+        refreshCounter: countPokemons,
       ),
       body: HomeListview(
         pokemons: _pokemons,
         fetchPokemons: fetchPokemons,
         refreshList: refreshList,
         updateOffset: updateOffset,
+        pokemonsCounter: _totalPokemonsCounter,
+        refreshCounter: countPokemons,
       ),
     );
   }

@@ -42,35 +42,16 @@ class PokemonRepository {
     """;
 
     final filters = _prepareFilters(typeFilter, generationFilter);
-    final QueryResult result =
-        await client.query(QueryOptions(document: gql(query), variables: {
-      'offset': offset,
-      'where': filters.isEmpty ? {} : filters,
-    }));
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(query),
+      variables: {
+        'offset': offset,
+        'where': filters,
+      },
+    ));
 
     final List<dynamic> data = result.data?['pokemon_v2_pokemon'] ?? [];
     return data.map((json) => Pokemon.fromJson(json)).toList();
-  }
-
-  static Map<String, dynamic> _prepareFilters(
-      [List<String>? typeFilter, int? generationFilter]) {
-    final filters = <String, dynamic>{};
-
-    if (typeFilter != null && typeFilter.isNotEmpty) {
-      filters['pokemon_v2_pokemontypes'] = {
-        'pokemon_v2_type': {
-          'name': {'_in': typeFilter}
-        }
-      };
-    }
-
-    if (generationFilter != null && generationFilter > 0) {
-      filters['pokemon_v2_pokemonspecy'] = {
-        'generation_id': {'_eq': generationFilter}
-      };
-    }
-
-    return filters;
   }
 
   static Future<List<GenerationInfo>> getGenerations(
@@ -90,5 +71,50 @@ class PokemonRepository {
         await client.query(QueryOptions(document: gql(query)));
     final List<dynamic> data = result.data?['pokemon_v2_generation'] ?? [];
     return data.map((json) => GenerationInfo.fromJson(json)).toList();
+  }
+
+  static Future<int> countPokemons(GraphQLClient client,
+      [List<String>? typeFilter, int? generationFilter]) async {
+    const String query = """
+      query getTotalPokemons(\$where: pokemon_v2_pokemon_bool_exp) {
+        pokemon_v2_pokemon_aggregate(where: \$where) {
+          aggregate {
+            count
+          }
+        }
+      }
+    """;
+
+    final filters = _prepareFilters(typeFilter, generationFilter);
+
+    final QueryResult result = await client.query(
+      QueryOptions(document: gql(query), variables: {'where': filters}),
+    );
+    return result.data?['pokemon_v2_pokemon_aggregate']['aggregate']['count'];
+  }
+
+  // Methods without GraphQL
+  static Map<String, dynamic> _prepareFilters(
+      [List<String>? typeFilter, int? generationFilter]) {
+    final filters = <String, dynamic>{};
+    filters['pokemon_v2_pokemonforms'] = {
+      'is_default': {'_eq': true}
+    };
+
+    if (typeFilter != null && typeFilter.isNotEmpty) {
+      filters['pokemon_v2_pokemontypes'] = {
+        'pokemon_v2_type': {
+          'name': {'_in': typeFilter}
+        }
+      };
+    }
+
+    if (generationFilter != null && generationFilter > 0) {
+      filters['pokemon_v2_pokemonspecy'] = {
+        'generation_id': {'_eq': generationFilter}
+      };
+    }
+
+    return filters;
   }
 }

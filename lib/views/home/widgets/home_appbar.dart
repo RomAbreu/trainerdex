@@ -8,6 +8,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<String> typeFilterArgs;
   final int Function() selectedGeneration;
   final void Function(int) onChangedGeneration;
+  final int pokemonsCounter;
+  final Future<void> Function() refreshCounter;
 
   const HomeAppBar({
     super.key,
@@ -17,6 +19,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.typeFilterArgs,
     required this.selectedGeneration,
     required this.onChangedGeneration,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
   });
 
   @override
@@ -39,6 +43,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                       typeFilterArgs: typeFilterArgs,
                       selectedGeneration: selectedGeneration,
                       onChangedGeneration: onChangedGeneration,
+                      pokemonsCounter: pokemonsCounter,
+                      refreshCounter: refreshCounter,
                     ));
           },
           icon: const Icon(Icons.filter_alt_outlined),
