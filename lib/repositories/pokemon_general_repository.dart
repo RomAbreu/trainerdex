@@ -8,7 +8,7 @@ class PokemonRepository {
       [List<String>? typeFilter, int? generationFilter]) async {
     const String query = """
       query samplePokeAPIquery(\$offset: Int!, \$where: pokemon_v2_pokemon_bool_exp) {
-        pokemon_v2_pokemon(offset: \$offset, limit: 12, order_by: {pokemon_species_id: asc}, where: \$where) {
+        pokemon_v2_pokemon(offset: \$offset, limit: 25, order_by: {pokemon_species_id: asc}, where: \$where) {
           id
           pokemon_v2_pokemonsprites {
             sprites(path: "other.official-artwork.front_default")

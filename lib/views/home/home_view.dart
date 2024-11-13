@@ -22,7 +22,7 @@ class _HomeViewState extends State<HomeView> {
   // Methods for updating ListView
   void updateOffset() {
     setState(() {
-      _currentOffset += 12;
+      _currentOffset += 25;
     });
   }
 
