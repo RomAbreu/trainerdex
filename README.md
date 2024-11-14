@@ -2,8 +2,6 @@
 
 ![image.png](image.png)
 
-# TrainerDex
-
 ## Índice
 
 1. [Descripción del proyecto](#descripción-del-proyecto)
@@ -11,6 +9,7 @@
 3. [Tecnologías usadas](#tecnologías-usadas)
 4. [Funcionalidades Principales](#funcionalidades-principales)
 5. [Uso de la API GraphQL](#uso-de-la-api-graphql)
+6. [Decisiones de diseño](#decisiones-de-diseño)
 
 ## Descripción del proyecto
 
