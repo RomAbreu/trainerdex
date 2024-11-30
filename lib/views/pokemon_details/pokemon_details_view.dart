@@ -413,12 +413,6 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               child: DropdownButton<String>(
                 padding: const EdgeInsets.only(left: 12),
                 dropdownColor: Utils.lightenColor(widget.pokemon.color, 0.6),
-                style: TextStyle(
-                  color: Utils.darkenColor(widget.pokemon.color, 0.5),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: GoogleFonts.manrope().fontFamily,
-                ),
                 value: _selectedVersion,
                 onChanged: _gameVersionChanged,
                 items: _buildVersionGroupDropdownItems(),
@@ -470,7 +464,15 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
     return AppValues.versionGroupMap.entries
         .map((entry) => DropdownMenuItem(
               value: entry.key,
-              child: Text(entry.value),
+              child: Text(
+                entry.value,
+                style: TextStyle(
+                  color: Utils.darkenColor(widget.pokemon.color, 0.5),
+                  fontSize: entry.value.length > 24 ? 10 : 12,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: GoogleFonts.manrope().fontFamily,
+                ),
+              ),
             ))
         .toList();
   }

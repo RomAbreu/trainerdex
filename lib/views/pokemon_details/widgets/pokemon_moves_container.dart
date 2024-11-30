@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:trainerdex/constants/app_theme.dart';
 import 'package:trainerdex/models/pokemon_move.dart';
 import 'package:trainerdex/utils.dart';
@@ -92,12 +93,15 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                     horizontal: 8.0,
                     vertical: 4.0,
                   ),
-                  child: Text(
-                    move.type.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      move.type.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -116,7 +120,7 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                               color: AppTheme.typeColors[move.type]!
                                   .withOpacity(1),
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 16,
                             ),
                           ),
                           Text(
@@ -134,7 +138,7 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                         children: [
                           if (move.method == 'level-up') ...[
                             _richText('Lv', move.level.toString()),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                           ],
                           if (move.method == 'machine' &&
                               move.machineNumber! > 100) ...[
@@ -142,27 +146,27 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                               'HM',
                               move.machineNumber.toString().substring(1),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                           ],
                           if (move.method == 'machine' &&
                               move.machineNumber! <= 100) ...[
                             _richText('TM', move.machineNumber.toString()),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                           ],
                           _richText('PP', move.pp.toString()),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           _richText(
                             'Power',
                             move.power == null ? '-' : move.power.toString(),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           _richText(
                             'Acc',
                             move.accuracy == null
                                 ? '-'
                                 : move.accuracy.toString(),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                         ],
                       ),
                     ],
@@ -170,8 +174,9 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.only(right: 8.0),
+                padding: EdgeInsets.only(right: 6.0),
                 child: Icon(
+                  size: 22,
                   Icons.info_outline,
                   color: Colors.grey,
                 ),
@@ -198,7 +203,7 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
             style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w500,
-              fontSize: 14,
+              fontSize: 12,
             ),
           ),
         ],
@@ -230,7 +235,7 @@ class _PokemonMovesContainerState extends State<PokemonMovesContainer> {
           style: TextStyle(
             color: widget.pokemonColor,
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 12,
           ),
         ),
       ),
