@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
 import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/utils.dart';
@@ -41,9 +42,29 @@ class ImageSide extends StatelessWidget {
   }
 }
 
-class InformationSide extends StatelessWidget {
-  const InformationSide({super.key, required this.pokemon});
+class InformationSide extends StatefulWidget {
   final Pokemon pokemon;
+  const InformationSide({super.key, required this.pokemon});
+
+  @override
+  State<InformationSide> createState() => _InformationSideState();
+}
+
+class _InformationSideState extends State<InformationSide> {
+  bool _isFavorite = false;
+
+  void _loadFavorite() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isFavorite = prefs.getBool(widget.pokemon.id.toString()) ?? false;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadFavorite();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +78,7 @@ class InformationSide extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 173, maxHeight: 60),
                 padding: const EdgeInsets.only(top: 10),
                 child: AutoSizeText(
-                  Utils.formatPokemonName(pokemon),
+                  Utils.formatPokemonName(widget.pokemon),
                   style: _nameStyle,
                   maxLines: 2,
                   minFontSize: 12,
@@ -65,7 +86,7 @@ class InformationSide extends StatelessWidget {
                 ),
               ),
               Row(children: [
-                for (final type in pokemon.types)
+                for (final type in widget.pokemon.types)
                   TypeChip(type: type, fontSize: 9.5)
               ]),
             ]),
@@ -77,8 +98,18 @@ class InformationSide extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite_border),
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    setState(() {
+                      _isFavorite = !_isFavorite;
+                      if (_isFavorite) {
+                        prefs.setBool(widget.pokemon.id.toString(), true);
+                      } else {
+                        prefs.remove(widget.pokemon.id.toString());
+                      }
+                    });
+                  },
+                  icon: Icon(_favoriteIcon),
                   padding: const EdgeInsets.all(0),
                   constraints: const BoxConstraints(),
                   style: IconButton.styleFrom(
@@ -87,7 +118,7 @@ class InformationSide extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 9),
-                child: Text('#${pokemon.speciesId}', style: _idStyle),
+                child: Text('#${widget.pokemon.speciesId}', style: _idStyle),
               ),
             ]),
         const SizedBox(width: 9.5),
@@ -101,4 +132,7 @@ class InformationSide extends StatelessWidget {
 
   final TextStyle _idStyle = const TextStyle(
       fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black45);
+
+  IconData get _favoriteIcon =>
+      _isFavorite ? Icons.favorite : Icons.favorite_border;
 }
