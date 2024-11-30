@@ -13,18 +13,19 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function(int) onChangedGeneration;
   final int pokemonsCounter;
   final Future<void> Function() refreshCounter;
+  final void Function(String query) onSearchTextChanged;
 
-  const HomeAppBar({
-    super.key,
-    required this.fetchPokemons,
-    required this.refreshList,
-    required this.updateOffset,
-    required this.typeFilterArgs,
-    required this.selectedGeneration,
-    required this.onChangedGeneration,
-    required this.pokemonsCounter,
-    required this.refreshCounter,
-  });
+  const HomeAppBar(
+      {super.key,
+      required this.fetchPokemons,
+      required this.refreshList,
+      required this.updateOffset,
+      required this.typeFilterArgs,
+      required this.selectedGeneration,
+      required this.onChangedGeneration,
+      required this.pokemonsCounter,
+      required this.refreshCounter,
+      required this.onSearchTextChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               const SizedBox(width: 10),
-              const StyledSearchBar(),
+              StyledSearchBar(onSearchTextChanged: onSearchTextChanged),
               IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.sort),
@@ -113,7 +114,8 @@ class TitleText extends StatelessWidget {
 }
 
 class StyledSearchBar extends StatefulWidget {
-  const StyledSearchBar({super.key});
+  final void Function(String query) onSearchTextChanged;
+  const StyledSearchBar({super.key, required this.onSearchTextChanged});
 
   @override
   State<StyledSearchBar> createState() => _StyledSearchBarState();
@@ -121,6 +123,7 @@ class StyledSearchBar extends StatefulWidget {
 
 class _StyledSearchBarState extends State<StyledSearchBar> {
   late StreamSubscription<bool> keyboardSubscription;
+  Timer? _debounce;
 
   @override
   void didChangeDependencies() {
@@ -163,6 +166,12 @@ class _StyledSearchBarState extends State<StyledSearchBar> {
           child: TextField(
             style: const TextStyle(fontSize: 14),
             decoration: decoration,
+            onChanged: (text) {
+              if (_debounce?.isActive ?? false) _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 300), () {
+                widget.onSearchTextChanged(text);
+              });
+            },
           ),
         ),
       ),

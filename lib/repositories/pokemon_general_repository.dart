@@ -5,7 +5,9 @@ import 'package:trainerdex/models/pokemon.dart';
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
       GraphQLClient client, int offset,
-      [List<String>? typeFilter, int? generationFilter]) async {
+      [List<String>? typeFilter,
+      int? generationFilter,
+      String? searchQuery]) async {
     const String query = """
       query samplePokeAPIquery(\$offset: Int!, \$where: pokemon_v2_pokemon_bool_exp) {
         pokemon_v2_pokemon(offset: \$offset, limit: 25, order_by: {pokemon_species_id: asc}, where: \$where) {
@@ -41,7 +43,7 @@ class PokemonRepository {
       }
     """;
 
-    final filters = _prepareFilters(typeFilter, generationFilter);
+    final filters = _prepareFilters(typeFilter, generationFilter, searchQuery);
     final QueryResult result = await client.query(QueryOptions(
       document: gql(query),
       variables: {
@@ -74,7 +76,9 @@ class PokemonRepository {
   }
 
   static Future<int> countPokemons(GraphQLClient client,
-      [List<String>? typeFilter, int? generationFilter]) async {
+      [List<String>? typeFilter,
+      int? generationFilter,
+      String? searchQuery]) async {
     const String query = """
       query getTotalPokemons(\$where: pokemon_v2_pokemon_bool_exp) {
         pokemon_v2_pokemon_aggregate(where: \$where) {
@@ -85,7 +89,7 @@ class PokemonRepository {
       }
     """;
 
-    final filters = _prepareFilters(typeFilter, generationFilter);
+    final filters = _prepareFilters(typeFilter, generationFilter, searchQuery);
 
     final QueryResult result = await client.query(
       QueryOptions(document: gql(query), variables: {'where': filters}),
@@ -95,7 +99,7 @@ class PokemonRepository {
 
   // Methods without GraphQL
   static Map<String, dynamic> _prepareFilters(
-      [List<String>? typeFilter, int? generationFilter]) {
+      [List<String>? typeFilter, int? generationFilter, String? searchQuery]) {
     final filters = <String, dynamic>{};
     filters['pokemon_v2_pokemonforms'] = {
       'is_default': {'_eq': true}
@@ -113,6 +117,16 @@ class PokemonRepository {
       filters['pokemon_v2_pokemonspecy'] = {
         'generation_id': {'_eq': generationFilter}
       };
+    }
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      int? idConvertion = int.tryParse(searchQuery);
+
+      (idConvertion != null)
+          ? filters['pokemon_species_id'] = {'_eq': idConvertion}
+          : filters['pokemon_v2_pokemonspecy'] = {
+              'name': {'_ilike': '%$searchQuery%'}
+            };
     }
 
     return filters;
