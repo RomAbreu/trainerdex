@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
 import 'package:trainerdex/models/generation_info.dart';
 import 'package:trainerdex/repositories/pokemon_general_repository.dart';
+import 'package:trainerdex/widgets/bottom_sheet_commons.dart';
 
 class FilterBottomSheetContent extends StatefulWidget {
   final List<Tab> tabs = const [
@@ -60,7 +61,7 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Column(children: [
-        const FilterBottomSheetHeader(),
+        const BottomSheetHeader(title: 'Filter'),
 
         // Important filter content
         DefaultTabController(
@@ -263,35 +264,5 @@ class _GenerationViewState extends State<GenerationView> {
     widget.onChangedGeneration(_currentSelection);
     widget.refreshList();
     widget.fetchPokemons();
-  }
-}
-
-class FilterBottomSheetHeader extends StatelessWidget {
-  const FilterBottomSheetHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Container(
-            width: 50,
-            height: 5,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          child: Text(
-            'Filters',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
   }
 }

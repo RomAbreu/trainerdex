@@ -7,10 +7,14 @@ class PokemonRepository {
       GraphQLClient client, int offset,
       [List<String>? typeFilter,
       int? generationFilter,
-      String? searchQuery]) async {
-    const String query = """
+      String? searchQuery,
+      int? selectedOrderOption,
+      int? selectedSortOption]) async {
+    String sort = _prepareSorting(selectedSortOption, selectedOrderOption);
+
+    String query = """
       query samplePokeAPIquery(\$offset: Int!, \$where: pokemon_v2_pokemon_bool_exp) {
-        pokemon_v2_pokemon(offset: \$offset, limit: 25, order_by: {pokemon_species_id: asc}, where: \$where) {
+        pokemon_v2_pokemon(offset: \$offset, limit: 25, order_by: $sort, where: \$where) {
           id
           pokemon_v2_pokemonsprites {
             sprites(path: "other.official-artwork.front_default")
@@ -98,6 +102,22 @@ class PokemonRepository {
   }
 
   // Methods without GraphQL
+  static String _prepareSorting(
+      int? selectedSortOption, int? selectedOrderOption) {
+    final List<String> orderOptions = ['asc', 'desc'];
+
+    switch (selectedSortOption) {
+      case 0:
+        return '{pokemon_species_id: ${orderOptions[selectedOrderOption ?? 0]}}';
+      case 1:
+        return '{name: ${orderOptions[selectedOrderOption ?? 0]}}';
+      case 2:
+        return '{pokemon_v2_pokemontypes_aggregate: {min: {type_id:${orderOptions[selectedOrderOption ?? 0]}}}}';
+      default:
+        return '{pokemon_species_id: ${orderOptions[selectedOrderOption ?? 0]}}';
+    }
+  }
+
   static Map<String, dynamic> _prepareFilters(
       [List<String>? typeFilter, int? generationFilter, String? searchQuery]) {
     final filters = <String, dynamic>{};

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:trainerdex/views/home/widgets/home_filter.dart';
+import 'package:trainerdex/views/home/widgets/home_sorter.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback refreshList;
@@ -14,18 +15,27 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int pokemonsCounter;
   final Future<void> Function() refreshCounter;
   final void Function(String query) onSearchTextChanged;
+  final int selectedSortOption;
+  final int selectedOrderOption;
+  final void Function(int value) onChangedSortOption;
+  final void Function(int value) onChangedOrderOption;
 
-  const HomeAppBar(
-      {super.key,
-      required this.fetchPokemons,
-      required this.refreshList,
-      required this.updateOffset,
-      required this.typeFilterArgs,
-      required this.selectedGeneration,
-      required this.onChangedGeneration,
-      required this.pokemonsCounter,
-      required this.refreshCounter,
-      required this.onSearchTextChanged});
+  const HomeAppBar({
+    super.key,
+    required this.fetchPokemons,
+    required this.refreshList,
+    required this.updateOffset,
+    required this.typeFilterArgs,
+    required this.selectedGeneration,
+    required this.onChangedGeneration,
+    required this.pokemonsCounter,
+    required this.refreshCounter,
+    required this.onSearchTextChanged,
+    required this.selectedSortOption,
+    required this.selectedOrderOption,
+    required this.onChangedSortOption,
+    required this.onChangedOrderOption,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +79,17 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               const SizedBox(width: 10),
               StyledSearchBar(onSearchTextChanged: onSearchTextChanged),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) => SorterBottomSheetContent(
+                      selectedSortOption: selectedSortOption,
+                      selectedOrderOption: selectedOrderOption,
+                      onChangedSortOption: onChangedSortOption,
+                      onChangedOrderOption: onChangedOrderOption,
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.sort),
                 iconSize: 30,
               ),

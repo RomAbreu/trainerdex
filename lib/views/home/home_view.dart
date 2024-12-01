@@ -19,27 +19,47 @@ class _HomeViewState extends State<HomeView> {
   int _selectedGeneration = 0;
   int _totalPokemonsCounter = 0;
   String _searchQuery = '';
+  int _selectedSortOption = 0;
+  int _selectedOrderOption = 0;
 
   // Methods for updating ListView
-  void _onSearchTextChanged(String query) {
+  void onChangedSortOption(int value) {
+    setState(() {
+      _selectedSortOption = value;
+    });
+    updateElements();
+  }
+
+  void onChangedOrderOption(int value) {
+    setState(() {
+      _selectedOrderOption = value;
+    });
+    updateElements();
+  }
+
+  void onSearchTextChanged(String query) {
     setState(() {
       _searchQuery = query;
     });
+    updateElements();
+  }
+
+  void updateElements() {
     refreshList();
     fetchPokemons();
     refreshCounter();
-  }
-
-  void updateOffset() {
-    setState(() {
-      _currentOffset += 25;
-    });
   }
 
   void refreshList() {
     setState(() {
       _pokemons.clear();
       _currentOffset = 0;
+    });
+  }
+
+  void updateOffset() {
+    setState(() {
+      _currentOffset += 25;
     });
   }
 
@@ -51,6 +71,8 @@ class _HomeViewState extends State<HomeView> {
       _typeFilterArgs,
       _selectedGeneration,
       _searchQuery,
+      _selectedOrderOption,
+      _selectedSortOption,
     );
 
     setState(() {
@@ -94,7 +116,11 @@ class _HomeViewState extends State<HomeView> {
         onChangedGeneration: setGeneration,
         pokemonsCounter: _totalPokemonsCounter,
         refreshCounter: refreshCounter,
-        onSearchTextChanged: _onSearchTextChanged,
+        onSearchTextChanged: onSearchTextChanged,
+        selectedSortOption: _selectedSortOption,
+        selectedOrderOption: _selectedOrderOption,
+        onChangedSortOption: onChangedSortOption,
+        onChangedOrderOption: onChangedOrderOption,
       ),
       body: HomeListview(
         pokemons: _pokemons,
