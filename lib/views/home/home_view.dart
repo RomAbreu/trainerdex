@@ -79,6 +79,15 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  void _removePokemonWhenDisplayingFavorites(int index) {
+    if (!_showFavorites) return;
+
+    setState(() {
+      _pokemons.removeAt(index);
+      _totalPokemonsCounter--;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,6 +109,9 @@ class _HomeViewState extends State<HomeView> {
         updateOffset: updateOffset,
         pokemonsCounter: _totalPokemonsCounter,
         refreshCounter: countPokemons,
+        showFavorites: _showFavorites,
+        removePokemonWhenDisplayingFavorites:
+            _removePokemonWhenDisplayingFavorites,
       ),
     );
   }

@@ -43,8 +43,16 @@ class ImageSide extends StatelessWidget {
 }
 
 class InformationSide extends StatefulWidget {
+  final int index;
   final Pokemon pokemon;
-  const InformationSide({super.key, required this.pokemon});
+  final void Function(int) removePokemonWhenDisplayingFavorites;
+
+  const InformationSide({
+    super.key,
+    required this.index,
+    required this.pokemon,
+    required this.removePokemonWhenDisplayingFavorites,
+  });
 
   @override
   State<InformationSide> createState() => _InformationSideState();
@@ -91,6 +99,7 @@ class _InformationSideState extends State<InformationSide> {
                   onPressed: () async {
                     _pref.setPokemonFavorite(widget.pokemon.id);
                     setState(() {});
+                    widget.removePokemonWhenDisplayingFavorites(widget.index);
                   },
                   icon: _pref.isPokemonFavorite(widget.pokemon.id)
                       ? Image.asset(
