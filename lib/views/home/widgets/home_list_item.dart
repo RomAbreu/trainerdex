@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
 import 'package:trainerdex/models/pokemon.dart';
+import 'package:trainerdex/shared_preferences_helper.dart';
 import 'package:trainerdex/utils.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -51,45 +51,35 @@ class InformationSide extends StatefulWidget {
 }
 
 class _InformationSideState extends State<InformationSide> {
-  bool _isFavorite = false;
-
-  void _loadFavorite() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isFavorite = prefs.getBool(widget.pokemon.id.toString()) ?? false;
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadFavorite();
-  }
+  final _pref = SharedPreferencesHelper.instance;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Row(children: [
         Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                constraints: const BoxConstraints(maxWidth: 173, maxHeight: 60),
-                padding: const EdgeInsets.only(top: 10),
-                child: AutoSizeText(
-                  Utils.formatPokemonName(widget.pokemon),
-                  style: _nameStyle,
-                  maxLines: 2,
-                  minFontSize: 12,
-                  overflow: TextOverflow.ellipsis,
-                ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxWidth: 173, maxHeight: 60),
+              padding: const EdgeInsets.only(top: 10),
+              child: AutoSizeText(
+                Utils.formatPokemonName(widget.pokemon),
+                style: _nameStyle,
+                maxLines: 2,
+                minFontSize: 12,
+                overflow: TextOverflow.ellipsis,
               ),
-              Row(children: [
+            ),
+            Row(
+              children: [
                 for (final type in widget.pokemon.types)
                   TypeChip(type: type, fontSize: 9.5)
-              ]),
-            ]),
+              ],
+            ),
+          ],
+        ),
         const Spacer(),
         Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -99,17 +89,15 @@ class _InformationSideState extends State<InformationSide> {
                 padding: const EdgeInsets.only(top: 10),
                 child: IconButton(
                   onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    setState(() {
-                      _isFavorite = !_isFavorite;
-                      if (_isFavorite) {
-                        prefs.setBool(widget.pokemon.id.toString(), true);
-                      } else {
-                        prefs.remove(widget.pokemon.id.toString());
-                      }
-                    });
+                    _pref.setPokemonFavorite(widget.pokemon.id);
+                    setState(() {});
                   },
-                  icon: Icon(_favoriteIcon),
+                  icon: _pref.isPokemonFavorite(widget.pokemon.id)
+                      ? Image.asset(
+                          'assets/icon-pokeball-closed.png',
+                          width: 30,
+                        )
+                      : const Icon(Icons.favorite_border),
                   padding: const EdgeInsets.all(0),
                   constraints: const BoxConstraints(),
                   style: IconButton.styleFrom(
@@ -132,7 +120,4 @@ class _InformationSideState extends State<InformationSide> {
 
   final TextStyle _idStyle = const TextStyle(
       fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black45);
-
-  IconData get _favoriteIcon =>
-      _isFavorite ? Icons.favorite : Icons.favorite_border;
 }

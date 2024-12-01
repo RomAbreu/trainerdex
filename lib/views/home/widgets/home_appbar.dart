@@ -10,6 +10,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function(int) onChangedGeneration;
   final int pokemonsCounter;
   final Future<void> Function() refreshCounter;
+  final VoidCallback updateShowFavorites;
 
   const HomeAppBar({
     super.key,
@@ -21,6 +22,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onChangedGeneration,
     required this.pokemonsCounter,
     required this.refreshCounter,
+    required this.updateShowFavorites,
   });
 
   @override
@@ -29,23 +31,29 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: const Text('TrainerDex'),
       actions: <Widget>[
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            updateShowFavorites();
+            refreshList();
+            fetchPokemons();
+            refreshCounter();
+          },
           icon: Image.asset('assets/icon-pokeball-closed.png'),
         ),
         IconButton(
           onPressed: () {
             showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) => FilterBottomSheetContent(
-                      fetchPokemons: fetchPokemons,
-                      refreshList: refreshList,
-                      updateOffset: updateOffset,
-                      typeFilterArgs: typeFilterArgs,
-                      selectedGeneration: selectedGeneration,
-                      onChangedGeneration: onChangedGeneration,
-                      pokemonsCounter: pokemonsCounter,
-                      refreshCounter: refreshCounter,
-                    ));
+              context: context,
+              builder: (BuildContext context) => FilterBottomSheetContent(
+                fetchPokemons: fetchPokemons,
+                refreshList: refreshList,
+                updateOffset: updateOffset,
+                typeFilterArgs: typeFilterArgs,
+                selectedGeneration: selectedGeneration,
+                onChangedGeneration: onChangedGeneration,
+                pokemonsCounter: pokemonsCounter,
+                refreshCounter: refreshCounter,
+              ),
+            );
           },
           icon: const Icon(Icons.filter_alt_outlined),
           iconSize: 35,

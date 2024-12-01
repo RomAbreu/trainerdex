@@ -18,6 +18,7 @@ class _HomeViewState extends State<HomeView> {
   final List<String> _typeFilterArgs = [];
   int _selectedGeneration = 0;
   int _totalPokemonsCounter = 0;
+  bool _showFavorites = false;
 
   // Methods for updating ListView
   void updateOffset() {
@@ -37,6 +38,7 @@ class _HomeViewState extends State<HomeView> {
     final List<Pokemon> pokemons =
         await PokemonRepository.getPokemonsWithOffset(
       GraphQLProvider.of(context).value,
+      _showFavorites,
       _currentOffset,
       _typeFilterArgs,
       _selectedGeneration,
@@ -60,6 +62,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> countPokemons() async {
     final counter = await PokemonRepository.countPokemons(
       GraphQLProvider.of(context).value,
+      _showFavorites,
       _typeFilterArgs,
       _selectedGeneration,
     );
@@ -69,6 +72,12 @@ class _HomeViewState extends State<HomeView> {
     });
   }
   // Methods for updating ListView
+
+  void updateShowFavorites() {
+    setState(() {
+      _showFavorites = !_showFavorites;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +91,7 @@ class _HomeViewState extends State<HomeView> {
         onChangedGeneration: setGeneration,
         pokemonsCounter: _totalPokemonsCounter,
         refreshCounter: countPokemons,
+        updateShowFavorites: updateShowFavorites,
       ),
       body: HomeListview(
         pokemons: _pokemons,
