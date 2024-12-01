@@ -95,22 +95,35 @@ class _InformationSideState extends State<InformationSide> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: IconButton(
-                  onPressed: () async {
-                    _pref.setPokemonFavorite(widget.pokemon.id);
-                    setState(() {});
-                    widget.removePokemonWhenDisplayingFavorites(widget.index);
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder: (child, animation) {
+                    return RotationTransition(
+                      turns: Tween(begin: 0.0, end: 1.0).animate(animation),
+                      child: child,
+                    );
                   },
-                  icon: _pref.isPokemonFavorite(widget.pokemon.id)
-                      ? Image.asset(
-                          'assets/icon-pokeball-closed.png',
-                          width: 30,
-                        )
-                      : const Icon(Icons.favorite_border),
-                  padding: const EdgeInsets.all(0),
-                  constraints: const BoxConstraints(),
-                  style: IconButton.styleFrom(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  child: IconButton(
+                    key: ValueKey(_pref.isPokemonFavorite(widget.pokemon.id)),
+                    onPressed: () async {
+                      _pref.setPokemonFavorite(widget.pokemon.id);
+                      setState(() {});
+                      widget.removePokemonWhenDisplayingFavorites(widget.index);
+                    },
+                    icon: _pref.isPokemonFavorite(widget.pokemon.id)
+                        ? Image.asset(
+                            'assets/pokeball_selected.png',
+                            width: 28,
+                          )
+                        : Image.asset(
+                            'assets/pokeball_unselected.png',
+                            width: 28,
+                          ),
+                    padding: const EdgeInsets.all(0),
+                    constraints: const BoxConstraints(),
+                    style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  ),
                 ),
               ),
               Padding(
