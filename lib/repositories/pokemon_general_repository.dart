@@ -1,6 +1,7 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/models/generation_info.dart';
 import 'package:trainerdex/models/pokemon.dart';
+import 'package:trainerdex/models/pokemon_ability.dart';
 
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
@@ -101,6 +102,23 @@ class PokemonRepository {
     return result.data?['pokemon_v2_pokemon_aggregate']['aggregate']['count'];
   }
 
+  static Future<List<PokemonAbility>> getAllAbilitiesWithOffset(
+      GraphQLClient client) async {
+    const String query = """
+      query obtainAllAbilities {
+        pokemon_v2_abilityname(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+          ability_id
+          name
+        }
+      }
+    """;
+
+    final QueryResult result =
+        await client.query(QueryOptions(document: gql(query)));
+    final List<dynamic> data = result.data?['pokemon_v2_abilityname'] ?? [];
+    return data.map((json) => PokemonAbility.fromJson(json)).toList();
+  }
+
   // Methods without GraphQL
   static String _prepareSorting(
       int? selectedSortOption, int? selectedOrderOption) {
@@ -112,7 +130,9 @@ class PokemonRepository {
       case 1:
         return '{name: ${orderOptions[selectedOrderOption ?? 0]}}';
       case 2:
-        return '{pokemon_v2_pokemontypes_aggregate: {min: {type_id:${orderOptions[selectedOrderOption ?? 0]}}}}';
+        return '{pokemon_v2_pokemontypes_aggregate: {min: {type_id: ${orderOptions[selectedOrderOption ?? 0]}}}}';
+      case 3:
+        return '{pokemon_v2_pokemonabilities_aggregate: {min: {ability_id: ${orderOptions[selectedOrderOption ?? 0]}}}}';
       default:
         return '{pokemon_species_id: ${orderOptions[selectedOrderOption ?? 0]}}';
     }

@@ -29,7 +29,7 @@ class _SorterBottomSheetContentState extends State<SorterBottomSheetContent> {
     'Number',
     'Name (A-Z)',
     'Type',
-    'Abilities',
+    'Ability',
   ];
   late int _orderSelected;
   late int _optionSelected;
@@ -47,7 +47,7 @@ class _SorterBottomSheetContentState extends State<SorterBottomSheetContent> {
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Column(children: [
-        const BottomSheetHeader(title: 'Sort'),
+        const BottomSheetHeader(title: 'Sort by'),
         for (final option in _sortByOptions)
           SortOptionCard(
             option: option,

@@ -22,7 +22,7 @@ class _HomeViewState extends State<HomeView> {
   int _selectedSortOption = 0;
   int _selectedOrderOption = 0;
 
-  // Methods for updating ListView
+// Methods for updating ListView
   void onChangedSortOption(int value) {
     setState(() {
       _selectedSortOption = value;
@@ -102,7 +102,7 @@ class _HomeViewState extends State<HomeView> {
       _totalPokemonsCounter = counter;
     });
   }
-  // Methods for updating ListView
+// Methods for updating ListView
 
   @override
   Widget build(BuildContext context) {
