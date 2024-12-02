@@ -7,14 +7,16 @@ import 'package:trainerdex/widgets/pokemon_type_container.dart';
 
 class BackgroundSliverAppBar extends StatelessWidget {
   final Pokemon pokemon;
-  final int option;
+  final int evolutionHeroTag;
   final bool isForScreenShot;
+  final int nextPokemonHeroTag;
 
   const BackgroundSliverAppBar({
     super.key,
     required this.pokemon,
-    this.option = 0,
+    this.evolutionHeroTag = 0,
     this.isForScreenShot = false,
+    this.nextPokemonHeroTag = 0,
   });
 
   @override
@@ -28,7 +30,7 @@ class BackgroundSliverAppBar extends StatelessWidget {
         children: [
           const SizedBox(height: 80),
           Hero(
-            tag: '${pokemon.id}-$option',
+            tag: '${pokemon.id}-$evolutionHeroTag-$nextPokemonHeroTag',
             child: Image.network(
               pokemon.imageUrl,
               height: AppValues.kPokemonDetailsImageHeight,

@@ -8,14 +8,16 @@ class PokemonEvolutionChain extends StatelessWidget {
   final List<Pokemon> pokemons;
   final PokemonNode pokemonNode;
   final int pokemonId;
-  final int option;
+  final int evolutionHeroTag;
+  final int nextPokemonHeroTag;
 
   const PokemonEvolutionChain({
     super.key,
     required this.pokemons,
     required this.pokemonNode,
     required this.pokemonId,
-    this.option = 0,
+    this.evolutionHeroTag = 0,
+    this.nextPokemonHeroTag = 0,
   });
 
   @override
@@ -58,7 +60,8 @@ class PokemonEvolutionChain extends StatelessWidget {
                   builder: (_) => PokemonDetailsView(
                     pokemons: pokemons,
                     pokemon: node.pokemon,
-                    option: option + 1,
+                    evolutionHeroTag: evolutionHeroTag + 1,
+                    nextPokemonHeroTag: nextPokemonHeroTag,
                   ),
                 ),
               );
@@ -72,7 +75,8 @@ class PokemonEvolutionChain extends StatelessWidget {
               child: Column(
                 children: [
                   Hero(
-                    tag: '${node.pokemon.id}-${option + 1}',
+                    tag:
+                        '${node.pokemon.id}-${evolutionHeroTag + 1}-$nextPokemonHeroTag',
                     child: Image.network(
                       node.pokemon.imageUrl,
                       width: 60,

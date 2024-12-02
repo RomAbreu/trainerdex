@@ -25,13 +25,15 @@ import 'package:trainerdex/views/pokemon_details/widgets/pokemon_moves_container
 class PokemonDetailsView extends StatefulWidget {
   final List<Pokemon> pokemons;
   final Pokemon pokemon;
-  final int option;
+  final int evolutionHeroTag;
+  final int nextPokemonHeroTag;
 
   const PokemonDetailsView({
     super.key,
     required this.pokemons,
     required this.pokemon,
-    this.option = 0,
+    this.evolutionHeroTag = 0,
+    this.nextPokemonHeroTag = 0,
   });
 
   @override
@@ -149,7 +151,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
                   final image = await screenshotController.captureFromWidget(
                     BackgroundSliverAppBar(
                       pokemon: widget.pokemon,
-                      option: widget.option,
+                      evolutionHeroTag: widget.evolutionHeroTag,
                       isForScreenShot: true,
                     ),
                   );
@@ -161,7 +163,8 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
             flexibleSpace: FlexibleSpaceBar(
               background: BackgroundSliverAppBar(
                 pokemon: widget.pokemon,
-                option: widget.option,
+                evolutionHeroTag: widget.evolutionHeroTag,
+                nextPokemonHeroTag: widget.nextPokemonHeroTag,
               ),
             ),
           ),
@@ -304,7 +307,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
                               pokemons: widget.pokemons,
                               pokemonNode: _evolutionChain!,
                               pokemonId: widget.pokemon.id,
-                              option: widget.option,
+                              evolutionHeroTag: widget.evolutionHeroTag,
                             ),
                           ),
                   ),
@@ -565,7 +568,8 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
             builder: (_) => PokemonDetailsView(
               pokemons: widget.pokemons,
               pokemon: pokemon,
-              option: widget.option - 1,
+              evolutionHeroTag: widget.evolutionHeroTag,
+              nextPokemonHeroTag: widget.nextPokemonHeroTag + 1,
             ),
           ),
         );
@@ -608,7 +612,8 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               const SizedBox(width: 4),
               Expanded(
                 child: Hero(
-                  tag: '${pokemon.id}-${widget.option - 1}',
+                  tag:
+                      '${pokemon.id}-${widget.evolutionHeroTag}-${widget.nextPokemonHeroTag + 1}',
                   child: Image.network(pokemon.imageUrl, width: 20),
                 ),
               ),
@@ -668,7 +673,8 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               const SizedBox(width: 4),
               Expanded(
                 child: Hero(
-                  tag: '${pokemon.id}-${widget.option - 1}',
+                  tag:
+                      '${pokemon.id}-${widget.evolutionHeroTag}-${widget.nextPokemonHeroTag + 1}',
                   child: Image.network(pokemon.imageUrl, width: 20),
                 ),
               ),

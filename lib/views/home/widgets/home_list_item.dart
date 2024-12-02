@@ -28,7 +28,7 @@ class ImageSide extends StatelessWidget {
         height: 108,
         child: Center(
           child: Hero(
-            tag: '${pokemon.id}-0',
+            tag: '${pokemon.id}-0-0',
             child: FadeInImage.memoryNetwork(
               placeholder: kTransparentImage,
               image: pokemon.imageUrl,
