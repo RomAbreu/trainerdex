@@ -15,9 +15,9 @@ class PokemonAbilitiesContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<PokemonAbility> hiddenAbilities =
-        abilities.where((ability) => ability.isHidden).toList();
+        abilities.where((ability) => ability.isHidden!).toList();
     List<PokemonAbility> normalAbilities =
-        abilities.where((ability) => !ability.isHidden).toList();
+        abilities.where((ability) => !ability.isHidden!).toList();
 
     return Column(
       children: [
@@ -72,7 +72,7 @@ class PokemonAbilitiesContainer extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (ability.isHidden)
+                      if (ability.isHidden!)
                         TextSpan(
                           text: ' (Hidden)',
                           style: TextStyle(

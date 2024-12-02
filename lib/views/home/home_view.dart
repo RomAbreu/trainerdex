@@ -16,21 +16,52 @@ class _HomeViewState extends State<HomeView> {
   int _currentOffset = 0;
   final List<Pokemon> _pokemons = [];
   final List<String> _typeFilterArgs = [];
+  final List<int> _abilitiesFilterArgs = [];
   int _selectedGeneration = 0;
   int _totalPokemonsCounter = 0;
+  String _searchQuery = '';
+  int _selectedSortOption = 0;
+  int _selectedOrderOption = 0;
   bool _showFavorites = false;
 
-  // Methods for updating ListView
-  void updateOffset() {
+// Methods for updating ListView
+  void onChangedSortOption(int value) {
     setState(() {
-      _currentOffset += 25;
+      _selectedSortOption = value;
     });
+    updateElements();
+  }
+
+  void onChangedOrderOption(int value) {
+    setState(() {
+      _selectedOrderOption = value;
+    });
+    updateElements();
+  }
+
+  void onSearchTextChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+    updateElements();
+  }
+
+  void updateElements() {
+    refreshList();
+    fetchPokemons();
+    refreshCounter();
   }
 
   void refreshList() {
     setState(() {
       _pokemons.clear();
       _currentOffset = 0;
+    });
+  }
+
+  void updateOffset() {
+    setState(() {
+      _currentOffset += 25;
     });
   }
 
@@ -41,7 +72,11 @@ class _HomeViewState extends State<HomeView> {
       _showFavorites,
       _currentOffset,
       _typeFilterArgs,
+      _abilitiesFilterArgs,
       _selectedGeneration,
+      _searchQuery,
+      _selectedOrderOption,
+      _selectedSortOption,
     );
 
     setState(() {
@@ -59,19 +94,21 @@ class _HomeViewState extends State<HomeView> {
     return _selectedGeneration;
   }
 
-  Future<void> countPokemons() async {
+  Future<void> refreshCounter() async {
     final counter = await PokemonRepository.countPokemons(
       GraphQLProvider.of(context).value,
       _showFavorites,
       _typeFilterArgs,
+      _abilitiesFilterArgs,
       _selectedGeneration,
+      _searchQuery,
     );
 
     setState(() {
       _totalPokemonsCounter = counter;
     });
   }
-  // Methods for updating ListView
+// Methods for updating ListView
 
   void updateShowFavorites() {
     setState(() {
@@ -96,10 +133,16 @@ class _HomeViewState extends State<HomeView> {
         refreshList: refreshList,
         updateOffset: updateOffset,
         typeFilterArgs: _typeFilterArgs,
+        abilitiesFilterArgs: _abilitiesFilterArgs,
         selectedGeneration: getGeneration,
         onChangedGeneration: setGeneration,
         pokemonsCounter: _totalPokemonsCounter,
-        refreshCounter: countPokemons,
+        refreshCounter: refreshCounter,
+        onSearchTextChanged: onSearchTextChanged,
+        selectedSortOption: _selectedSortOption,
+        selectedOrderOption: _selectedOrderOption,
+        onChangedSortOption: onChangedSortOption,
+        onChangedOrderOption: onChangedOrderOption,
         updateShowFavorites: updateShowFavorites,
         showFavorites: _showFavorites,
       ),

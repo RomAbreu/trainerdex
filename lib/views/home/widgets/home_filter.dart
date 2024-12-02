@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/constants/pokemon_types_util.dart';
 import 'package:trainerdex/models/generation_info.dart';
+import 'package:trainerdex/models/pokemon_ability.dart';
 import 'package:trainerdex/repositories/pokemon_general_repository.dart';
+import 'package:trainerdex/widgets/commons.dart';
 
 class FilterBottomSheetContent extends StatefulWidget {
   final List<Tab> tabs = const [
     Tab(child: FittedBox(child: Text('Type'))),
     Tab(child: FittedBox(child: Text('Generation'))),
-    Tab(child: FittedBox(child: Text('Abilities'))),
-    Tab(child: FittedBox(child: Text('Power'))),
+    Tab(child: FittedBox(child: Text('Ability'))),
   ];
 
   final VoidCallback refreshList;
@@ -20,6 +21,7 @@ class FilterBottomSheetContent extends StatefulWidget {
   final void Function(int) onChangedGeneration;
   final int pokemonsCounter;
   final Future<void> Function() refreshCounter;
+  final List<int> abilitiesFilterArgs;
 
   const FilterBottomSheetContent({
     super.key,
@@ -31,6 +33,7 @@ class FilterBottomSheetContent extends StatefulWidget {
     required this.onChangedGeneration,
     required this.pokemonsCounter,
     required this.refreshCounter,
+    required this.abilitiesFilterArgs,
   });
 
   @override
@@ -60,7 +63,7 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Column(children: [
-        const FilterBottomSheetHeader(),
+        const BottomSheetHeader(title: 'Filter'),
 
         // Important filter content
         DefaultTabController(
@@ -92,8 +95,12 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent>
                 pokemonsCounter: widget.pokemonsCounter,
                 refreshCounter: widget.refreshCounter,
               ),
-              const Center(child: Text('Abilities')),
-              const Center(child: Text('Power')),
+              AbilitiesView(
+                abilitiesFilterArgs: widget.abilitiesFilterArgs,
+                fetchPokemons: widget.fetchPokemons,
+                refreshCounter: widget.refreshCounter,
+                refreshList: widget.refreshList,
+              ),
             ],
           ),
         ),
@@ -266,32 +273,202 @@ class _GenerationViewState extends State<GenerationView> {
   }
 }
 
-class FilterBottomSheetHeader extends StatelessWidget {
-  const FilterBottomSheetHeader({super.key});
+class AbilitiesView extends StatefulWidget {
+  final List<int> abilitiesFilterArgs;
+  final VoidCallback refreshList;
+  final Future<void> Function() fetchPokemons;
+  final Future<void> Function() refreshCounter;
+
+  const AbilitiesView({
+    super.key,
+    required this.abilitiesFilterArgs,
+    required this.fetchPokemons,
+    required this.refreshCounter,
+    required this.refreshList,
+  });
+
+  @override
+  State<AbilitiesView> createState() => _AbilitiesViewState();
+}
+
+class _AbilitiesViewState extends State<AbilitiesView> {
+  late ScrollController controller;
+  final List<PokemonAbility> _abilities = [];
+  int _totalAbilitiesCounter = 0;
+  int _currentOffset = 0;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    controller = ScrollController()..addListener(_scrollListener);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchAbilities();
+    refreshCounter();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.removeListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (controller.offset >= controller.position.maxScrollExtent &&
+        !controller.position.outOfRange) {
+      updateOffset();
+      fetchAbilities();
+    }
+  }
+
+  Future<void> fetchAbilities() async {
+    final List<PokemonAbility> abilities =
+        await PokemonRepository.getAllAbilitiesWithOffset(
+      GraphQLProvider.of(context).value,
+      _currentOffset,
+      _searchQuery,
+    );
+
+    setState(() {
+      _abilities.addAll(abilities);
+    });
+  }
+
+  Future<void> refreshCounter() async {
+    final int count = await PokemonRepository.countAbilities(
+      GraphQLProvider.of(context).value,
+      _searchQuery,
+    );
+    setState(() {
+      _totalAbilitiesCounter = count;
+    });
+  }
+
+  updateOffset() {
+    setState(() {
+      _currentOffset += 60;
+    });
+  }
+
+  abilityIsSelected(int id) {
+    return widget.abilitiesFilterArgs.contains(id);
+  }
+
+  void toggleAbilitySelection(int id) {
+    setState(() {
+      if (widget.abilitiesFilterArgs.contains(id)) {
+        widget.abilitiesFilterArgs.remove(id);
+      } else {
+        widget.abilitiesFilterArgs.add(id);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Container(
-            width: 50,
-            height: 5,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
+        GeneralSearchBar(
+          onSearchTextChanged: (String query) {
+            setState(() {
+              _searchQuery = query;
+              _currentOffset = 0;
+              _abilities.clear();
+            });
+            fetchAbilities();
+            refreshCounter();
+          },
+          hintText: 'Search for abilities',
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          child: Text(
-            'Filters',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        Expanded(
+          child: CustomScrollView(
+            controller: controller,
+            slivers: [
+              SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 4 / 1,
+                ),
+                itemCount: _abilities.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < _abilities.length) {
+                    return AbilityItem(
+                      ability: _abilities[index],
+                      isSelected: () => widget.abilitiesFilterArgs
+                          .contains(_abilities[index].id),
+                      onTap: () {
+                        toggleAbilitySelection(_abilities[index].id!);
+                        widget.refreshList();
+                        widget.fetchPokemons();
+                        widget.refreshCounter();
+                      },
+                    );
+                  }
+                  return null;
+                },
+              ),
+              SliverToBoxAdapter(
+                child: (_totalAbilitiesCounter > _abilities.length)
+                    ? const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : const SizedBox(height: 10),
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class AbilityItem extends StatefulWidget {
+  final PokemonAbility ability;
+  final void Function() onTap;
+  final bool Function() isSelected;
+
+  const AbilityItem({
+    super.key,
+    required this.ability,
+    required this.onTap,
+    required this.isSelected,
+  });
+
+  @override
+  State<AbilityItem> createState() => _AbilityItemState();
+}
+
+class _AbilityItemState extends State<AbilityItem> {
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      decoration: BoxDecoration(
+        color: widget.isSelected()
+            ? Theme.of(context).primaryColor.withOpacity(0.4)
+            : Colors.transparent,
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+      child: InkWell(
+        splashColor: Theme.of(context).primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        onTap: widget.onTap,
+        child: Center(
+          child: Text(
+            widget.ability.name,
+            style: const TextStyle(fontSize: 17),
+          ),
+        ),
+      ),
     );
   }
 }
