@@ -1,5 +1,5 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:trainerdex/constants/app_values.dart';
 import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/utils.dart';
@@ -8,19 +8,22 @@ import 'package:trainerdex/widgets/pokemon_type_container.dart';
 class BackgroundSliverAppBar extends StatelessWidget {
   final Pokemon pokemon;
   final int option;
+  final bool isForScreenShot;
 
   const BackgroundSliverAppBar({
     super.key,
     required this.pokemon,
     this.option = 0,
+    this.isForScreenShot = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
-    return Center(
+    return Container(
+      color: Utils.lightenColor(
+          pokemon.color, AppValues.kAppBarBackgroundLightenFactor),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 80),
@@ -31,9 +34,9 @@ class BackgroundSliverAppBar extends StatelessWidget {
               height: AppValues.kPokemonDetailsImageHeight,
             ),
           ),
-          Container(
-            constraints: BoxConstraints(maxWidth: size.width, maxHeight: 120),
-            child: AutoSizeText(
+          FittedBox(
+            fit: BoxFit.cover,
+            child: Text(
               Utils.formatPokemonName(pokemon),
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -66,7 +69,8 @@ class BackgroundSliverAppBar extends StatelessWidget {
                   ),
                 )
                 .toList(),
-          )
+          ),
+          if (isForScreenShot) const SizedBox(height: 80),
         ],
       ),
     );

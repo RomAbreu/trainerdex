@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:trainerdex/constants/app_values.dart';
 import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/models/pokemon_ability.dart';
@@ -20,10 +23,16 @@ import 'package:trainerdex/views/pokemon_details/widgets/pokemon_info_container.
 import 'package:trainerdex/views/pokemon_details/widgets/pokemon_moves_container.dart';
 
 class PokemonDetailsView extends StatefulWidget {
+  final List<Pokemon> pokemons;
   final Pokemon pokemon;
   final int option;
 
-  const PokemonDetailsView({super.key, required this.pokemon, this.option = 0});
+  const PokemonDetailsView({
+    super.key,
+    required this.pokemons,
+    required this.pokemon,
+    this.option = 0,
+  });
 
   @override
   State<PokemonDetailsView> createState() => _PokemonDetailsViewState();
@@ -38,6 +47,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
   PokemonNode? _evolutionChain;
   PokemonInitialData _initialData = PokemonInitialData();
   bool _error = false;
+  final screenshotController = ScreenshotController();
 
   int _selectedPage = 0;
   final animationDuration = const Duration(milliseconds: 200);
@@ -92,32 +102,33 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
           SliverAppBar(
             shadowColor: Utils.darkenColor(widget.pokemon.color, 0.5),
             expandedHeight: 430.0,
-            title: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: Utils.formatPokemonName(widget.pokemon),
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.manrope().fontFamily,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Utils.lightenColor(
-                        widget.pokemon.color,
-                        AppValues.kTextLightenFactor,
+            title: FittedBox(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: Utils.formatPokemonName(widget.pokemon),
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.manrope().fontFamily,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Utils.lightenColor(
+                          widget.pokemon.color,
+                          AppValues.kTextLightenFactor,
+                        ),
                       ),
                     ),
-                  ),
-                  TextSpan(
-                    text:
-                        ' #${widget.pokemon.speciesId.toString().padLeft(3, '0')}',
-                    style: TextStyle(
-                      color: Utils.lightenColor(
-                        widget.pokemon.color,
-                        AppValues.kTextLightenFactor,
+                    TextSpan(
+                      text: ' #${widget.pokemon.speciesId.toString()}',
+                      style: TextStyle(
+                        color: Utils.lightenColor(
+                          widget.pokemon.color,
+                          AppValues.kTextLightenFactor,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             pinned: true,
@@ -127,6 +138,26 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share_rounded),
+                color: Utils.lightenColor(
+                  widget.pokemon.color,
+                  AppValues.kTextLightenFactor,
+                ),
+                onPressed: () async {
+                  final image = await screenshotController.captureFromWidget(
+                    BackgroundSliverAppBar(
+                      pokemon: widget.pokemon,
+                      option: widget.option,
+                      isForScreenShot: true,
+                    ),
+                  );
+
+                  Utils.shareImage(image);
+                },
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: BackgroundSliverAppBar(
                 pokemon: widget.pokemon,
@@ -155,6 +186,17 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
             )
           else ...[
             if (_selectedPage == 0) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppValues.kSectionLeftRightPadding,
+                    AppValues.kSectionTopPadding,
+                    AppValues.kSectionLeftRightPadding,
+                    AppValues.kSectionBottomPadding,
+                  ),
+                  child: _navigateThroughPokemons(),
+                ),
+              ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -259,6 +301,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
                             title: 'Evolution Chain',
                             pokemonColor: widget.pokemon.color,
                             child: PokemonEvolutionChain(
+                              pokemons: widget.pokemons,
                               pokemonNode: _evolutionChain!,
                               pokemonId: widget.pokemon.id,
                               option: widget.option,
@@ -413,12 +456,6 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               child: DropdownButton<String>(
                 padding: const EdgeInsets.only(left: 12),
                 dropdownColor: Utils.lightenColor(widget.pokemon.color, 0.6),
-                style: TextStyle(
-                  color: Utils.darkenColor(widget.pokemon.color, 0.5),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: GoogleFonts.manrope().fontFamily,
-                ),
                 value: _selectedVersion,
                 onChanged: _gameVersionChanged,
                 items: _buildVersionGroupDropdownItems(),
@@ -470,7 +507,15 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
     return AppValues.versionGroupMap.entries
         .map((entry) => DropdownMenuItem(
               value: entry.key,
-              child: Text(entry.value),
+              child: Text(
+                entry.value,
+                style: TextStyle(
+                  color: Utils.darkenColor(widget.pokemon.color, 0.5),
+                  fontSize: entry.value.length > 24 ? 10 : 12,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: GoogleFonts.manrope().fontFamily,
+                ),
+              ),
             ))
         .toList();
   }
@@ -482,6 +527,154 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
       child: Center(
         child: CircularProgressIndicator(
           color: widget.pokemon.color,
+        ),
+      ),
+    );
+  }
+
+  Widget _navigateThroughPokemons() {
+    final index = widget.pokemons.indexWhere((p) => p.id == widget.pokemon.id);
+
+    return Row(
+      children: [
+        if (index > 0) ...[
+          Expanded(
+              child: _nextOrPrevPokemonContainer(
+                  'prev', widget.pokemons[index - 1])),
+          const SizedBox(width: 6),
+        ],
+        if (index < widget.pokemons.length - 1) ...[
+          Expanded(
+              child: _nextOrPrevPokemonContainer(
+                  'next', widget.pokemons[index + 1])),
+        ],
+      ],
+    );
+  }
+
+  Widget _nextOrPrevPokemonContainer(String direction, Pokemon pokemon) {
+    if (direction != 'next' && direction != 'prev') {
+      throw ArgumentError('direction must be either "next" or "prev"');
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PokemonDetailsView(
+              pokemons: widget.pokemons,
+              pokemon: pokemon,
+              option: widget.option - 1,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Utils.darkenColor(widget.pokemon.color, 0.3),
+          ),
+          color: Utils.lightenColor(widget.pokemon.color, 0.6),
+        ),
+        child: Row(
+          children: [
+            if (direction == 'prev') ...[
+              Expanded(
+                flex: 2,
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    ),
+                    color: Utils.darkenColor(widget.pokemon.color, 0.3),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20,
+                      color: Utils.lightenColor(widget.pokemon.color),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            if (direction == 'next') ...[
+              const SizedBox(width: 4),
+              Expanded(
+                child: Hero(
+                  tag: '${pokemon.id}-${widget.option - 1}',
+                  child: Image.network(pokemon.imageUrl, width: 20),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+            Expanded(
+              flex: 4,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: Utils.formatPokemonName(pokemon),
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Utils.darkenColor(widget.pokemon.color, 0.3),
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' #${pokemon.speciesId.toString()}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Utils.darkenColor(widget.pokemon.color, 0.2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (direction == 'next') ...[
+              const SizedBox(width: 6),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    ),
+                    color: Utils.darkenColor(widget.pokemon.color, 0.3),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 20,
+                      color: Utils.lightenColor(widget.pokemon.color),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            if (direction == 'prev') ...[
+              const SizedBox(width: 4),
+              Expanded(
+                child: Hero(
+                  tag: '${pokemon.id}-${widget.option - 1}',
+                  child: Image.network(pokemon.imageUrl, width: 20),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ],
         ),
       ),
     );

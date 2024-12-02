@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/models/pokemon_node.dart';
 import 'package:trainerdex/utils.dart';
 import 'package:trainerdex/views/pokemon_details/pokemon_details_view.dart';
 
 class PokemonEvolutionChain extends StatelessWidget {
+  final List<Pokemon> pokemons;
   final PokemonNode pokemonNode;
   final int pokemonId;
   final int option;
-  const PokemonEvolutionChain(
-      {super.key,
-      required this.pokemonNode,
-      required this.pokemonId,
-      this.option = 0});
+
+  const PokemonEvolutionChain({
+    super.key,
+    required this.pokemons,
+    required this.pokemonNode,
+    required this.pokemonId,
+    this.option = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +56,7 @@ class PokemonEvolutionChain extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) => PokemonDetailsView(
+                    pokemons: pokemons,
                     pokemon: node.pokemon,
                     option: option + 1,
                   ),

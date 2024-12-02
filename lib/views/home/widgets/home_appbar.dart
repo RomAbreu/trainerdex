@@ -20,6 +20,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function(int value) onChangedSortOption;
   final void Function(int value) onChangedOrderOption;
   final List<int> abilitiesFilterArgs;
+  final VoidCallback updateShowFavorites;
+  final bool showFavorites;
 
   const HomeAppBar({
     super.key,
@@ -37,36 +39,53 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onChangedSortOption,
     required this.onChangedOrderOption,
     required this.abilitiesFilterArgs,
+    required this.updateShowFavorites,
+    required this.showFavorites,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const TitleText(),
-      actions: [
-        IconButton(
-          onPressed: () {},
-          icon: Image.asset(
-            'assets/icon-pokeball-closed.png',
-            width: 30,
+      title: TitleText(),
+      actions: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0).animate(animation),
+              child: child,
+            );
+          },
+          child: IconButton(
+            key: ValueKey<bool>(showFavorites),
+            onPressed: () {
+              updateShowFavorites();
+              refreshList();
+              fetchPokemons();
+              refreshCounter();
+            },
+            icon: showFavorites
+                ? Image.asset('assets/pokeball_selected.png', width: 32)
+                : Image.asset('assets/pokeball_unselected.png', width: 32),
           ),
         ),
         IconButton(
           onPressed: () {
             showModalBottomSheet(
-                context: context,
-                scrollControlDisabledMaxHeightRatio: 0.7,
-                builder: (BuildContext context) => FilterBottomSheetContent(
-                      fetchPokemons: fetchPokemons,
-                      refreshList: refreshList,
-                      updateOffset: updateOffset,
-                      typeFilterArgs: typeFilterArgs,
-                      abilitiesFilterArgs: abilitiesFilterArgs,
-                      selectedGeneration: selectedGeneration,
-                      onChangedGeneration: onChangedGeneration,
-                      pokemonsCounter: pokemonsCounter,
-                      refreshCounter: refreshCounter,
-                    ));
+              context: context,
+              scrollControlDisabledMaxHeightRatio: 0.7,
+              builder: (BuildContext context) => FilterBottomSheetContent(
+                fetchPokemons: fetchPokemons,
+                refreshList: refreshList,
+                updateOffset: updateOffset,
+                typeFilterArgs: typeFilterArgs,
+                abilitiesFilterArgs: abilitiesFilterArgs,
+                selectedGeneration: selectedGeneration,
+                onChangedGeneration: onChangedGeneration,
+                pokemonsCounter: pokemonsCounter,
+                refreshCounter: refreshCounter,
+              ),
+            );
           },
           icon: const Icon(Icons.filter_alt_outlined),
           iconSize: 30,

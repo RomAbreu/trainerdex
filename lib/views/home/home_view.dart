@@ -22,6 +22,7 @@ class _HomeViewState extends State<HomeView> {
   String _searchQuery = '';
   int _selectedSortOption = 0;
   int _selectedOrderOption = 0;
+  bool _showFavorites = false;
 
 // Methods for updating ListView
   void onChangedSortOption(int value) {
@@ -68,6 +69,7 @@ class _HomeViewState extends State<HomeView> {
     final List<Pokemon> pokemons =
         await PokemonRepository.getPokemonsWithOffset(
       GraphQLProvider.of(context).value,
+      _showFavorites,
       _currentOffset,
       _typeFilterArgs,
       _abilitiesFilterArgs,
@@ -95,6 +97,7 @@ class _HomeViewState extends State<HomeView> {
   Future<void> refreshCounter() async {
     final counter = await PokemonRepository.countPokemons(
       GraphQLProvider.of(context).value,
+      _showFavorites,
       _typeFilterArgs,
       _abilitiesFilterArgs,
       _selectedGeneration,
@@ -106,6 +109,21 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 // Methods for updating ListView
+
+  void updateShowFavorites() {
+    setState(() {
+      _showFavorites = !_showFavorites;
+    });
+  }
+
+  void _removePokemonWhenDisplayingFavorites(int index) {
+    if (!_showFavorites) return;
+
+    setState(() {
+      _pokemons.removeAt(index);
+      _totalPokemonsCounter--;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +143,8 @@ class _HomeViewState extends State<HomeView> {
         selectedOrderOption: _selectedOrderOption,
         onChangedSortOption: onChangedSortOption,
         onChangedOrderOption: onChangedOrderOption,
+        updateShowFavorites: updateShowFavorites,
+        showFavorites: _showFavorites,
       ),
       body: HomeListview(
         pokemons: _pokemons,
@@ -132,7 +152,10 @@ class _HomeViewState extends State<HomeView> {
         refreshList: refreshList,
         updateOffset: updateOffset,
         pokemonsCounter: _totalPokemonsCounter,
-        refreshCounter: refreshCounter,
+        refreshCounter: countPokemons,
+        showFavorites: _showFavorites,
+        removePokemonWhenDisplayingFavorites:
+            _removePokemonWhenDisplayingFavorites,
       ),
     );
   }

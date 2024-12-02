@@ -1,11 +1,14 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/models/generation_info.dart';
 import 'package:trainerdex/models/pokemon.dart';
+import 'package:trainerdex/shared_preferences_helper.dart';
 import 'package:trainerdex/models/pokemon_ability.dart';
 
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
-      GraphQLClient client, int offset,
+      GraphQLClient client, 
+      bool fetchFavorites,
+      int offset,
       [List<String>? typeFilter,
       List<int>? abilitiesFilter,
       int? generationFilter,
@@ -50,6 +53,8 @@ class PokemonRepository {
     """;
 
     final filters = _prepareFilters(
+      fetchFavorites,
+      SharedPreferencesHelper.instance.getFavoritesPokemons(),
       typeFilter,
       abilitiesFilter,
       generationFilter,
@@ -57,6 +62,7 @@ class PokemonRepository {
     );
     final QueryResult result = await client.query(QueryOptions(
       document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
       variables: {
         'offset': offset,
         'where': filters,
@@ -68,7 +74,8 @@ class PokemonRepository {
   }
 
   static Future<List<GenerationInfo>> getGenerations(
-      GraphQLClient client) async {
+    GraphQLClient client,
+  ) async {
     const String query = """
       query obtainAllGenerations {
         pokemon_v2_generation {
@@ -80,17 +87,22 @@ class PokemonRepository {
       }
       """;
 
-    final QueryResult result =
-        await client.query(QueryOptions(document: gql(query)));
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(query),
+    ));
     final List<dynamic> data = result.data?['pokemon_v2_generation'] ?? [];
     return data.map((json) => GenerationInfo.fromJson(json)).toList();
   }
 
-  static Future<int> countPokemons(GraphQLClient client,
-      [List<String>? typeFilter,
-      List<int>? abilitiesFilter,
-      int? generationFilter,
-      String? searchQuery]) async {
+
+  static Future<int> countPokemons(
+    GraphQLClient client,
+    bool fetchFavorites, [
+    List<String>? typeFilter,
+    List<int>? abilitiesFilter,
+    int? generationFilter,
+    String? searchQuery,
+  ]) async {
     const String query = """
       query getTotalPokemons(\$where: pokemon_v2_pokemon_bool_exp) {
         pokemon_v2_pokemon_aggregate(where: \$where) {
@@ -102,6 +114,8 @@ class PokemonRepository {
     """;
 
     final filters = _prepareFilters(
+      fetchFavorites,
+      SharedPreferencesHelper.instance.getFavoritesPokemons()
       typeFilter,
       abilitiesFilter,
       generationFilter,
@@ -109,7 +123,11 @@ class PokemonRepository {
     );
 
     final QueryResult result = await client.query(
-      QueryOptions(document: gql(query), variables: {'where': filters}),
+      QueryOptions(
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {'where': filters},
+      ),
     );
     return result.data?['pokemon_v2_pokemon_aggregate']['aggregate']['count'];
   }
@@ -184,6 +202,8 @@ class PokemonRepository {
   }
 
   static Map<String, dynamic> _prepareFilters(
+      bool fetchFavorites,
+      List<String> favoritePokemons,
       [List<String>? typeFilter,
       List<int>? abilitiesFilter,
       int? generationFilter,
@@ -223,6 +243,9 @@ class PokemonRepository {
           'id': {'_in': abilitiesFilter}
         }
       };
+    
+    if (fetchFavorites) {
+      filters['id'] = {'_in': favoritePokemons};
     }
 
     return filters;

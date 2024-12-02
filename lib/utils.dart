@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:trainerdex/models/pokemon.dart';
 
 class Utils {
@@ -52,5 +56,16 @@ class Utils {
     }
 
     return name;
+  }
+
+  static Future<void> shareImage(Uint8List bytes) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final image = File('${directory.path}/flutter.png');
+    image.writeAsBytesSync(bytes);
+
+    await Share.shareXFiles(
+      [XFile(image.path)],
+      text: 'Check out this Pokémon!',
+    );
   }
 }
