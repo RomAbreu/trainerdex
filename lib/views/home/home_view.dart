@@ -16,6 +16,7 @@ class _HomeViewState extends State<HomeView> {
   int _currentOffset = 0;
   final List<Pokemon> _pokemons = [];
   final List<String> _typeFilterArgs = [];
+  final List<int> _abilitiesFilterArgs = [];
   int _selectedGeneration = 0;
   int _totalPokemonsCounter = 0;
   String _searchQuery = '';
@@ -69,6 +70,7 @@ class _HomeViewState extends State<HomeView> {
       GraphQLProvider.of(context).value,
       _currentOffset,
       _typeFilterArgs,
+      _abilitiesFilterArgs,
       _selectedGeneration,
       _searchQuery,
       _selectedOrderOption,
@@ -94,6 +96,7 @@ class _HomeViewState extends State<HomeView> {
     final counter = await PokemonRepository.countPokemons(
       GraphQLProvider.of(context).value,
       _typeFilterArgs,
+      _abilitiesFilterArgs,
       _selectedGeneration,
       _searchQuery,
     );
@@ -112,6 +115,7 @@ class _HomeViewState extends State<HomeView> {
         refreshList: refreshList,
         updateOffset: updateOffset,
         typeFilterArgs: _typeFilterArgs,
+        abilitiesFilterArgs: _abilitiesFilterArgs,
         selectedGeneration: getGeneration,
         onChangedGeneration: setGeneration,
         pokemonsCounter: _totalPokemonsCounter,

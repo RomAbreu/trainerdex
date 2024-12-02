@@ -19,6 +19,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int selectedOrderOption;
   final void Function(int value) onChangedSortOption;
   final void Function(int value) onChangedOrderOption;
+  final List<int> abilitiesFilterArgs;
 
   const HomeAppBar({
     super.key,
@@ -35,6 +36,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.selectedOrderOption,
     required this.onChangedSortOption,
     required this.onChangedOrderOption,
+    required this.abilitiesFilterArgs,
   });
 
   @override
@@ -53,11 +55,13 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             showModalBottomSheet(
                 context: context,
+                scrollControlDisabledMaxHeightRatio: 0.7,
                 builder: (BuildContext context) => FilterBottomSheetContent(
                       fetchPokemons: fetchPokemons,
                       refreshList: refreshList,
                       updateOffset: updateOffset,
                       typeFilterArgs: typeFilterArgs,
+                      abilitiesFilterArgs: abilitiesFilterArgs,
                       selectedGeneration: selectedGeneration,
                       onChangedGeneration: onChangedGeneration,
                       pokemonsCounter: pokemonsCounter,

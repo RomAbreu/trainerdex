@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainerdex/widgets/bottom_sheet_commons.dart';
+import 'package:trainerdex/widgets/commons.dart';
 
 class SorterBottomSheetContent extends StatefulWidget {
   final int selectedSortOption;

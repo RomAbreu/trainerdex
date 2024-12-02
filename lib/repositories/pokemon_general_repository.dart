@@ -7,6 +7,7 @@ class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
       GraphQLClient client, int offset,
       [List<String>? typeFilter,
+      List<int>? abilitiesFilter,
       int? generationFilter,
       String? searchQuery,
       int? selectedOrderOption,
@@ -48,7 +49,12 @@ class PokemonRepository {
       }
     """;
 
-    final filters = _prepareFilters(typeFilter, generationFilter, searchQuery);
+    final filters = _prepareFilters(
+      typeFilter,
+      abilitiesFilter,
+      generationFilter,
+      searchQuery,
+    );
     final QueryResult result = await client.query(QueryOptions(
       document: gql(query),
       variables: {
@@ -82,6 +88,7 @@ class PokemonRepository {
 
   static Future<int> countPokemons(GraphQLClient client,
       [List<String>? typeFilter,
+      List<int>? abilitiesFilter,
       int? generationFilter,
       String? searchQuery]) async {
     const String query = """
@@ -94,7 +101,12 @@ class PokemonRepository {
       }
     """;
 
-    final filters = _prepareFilters(typeFilter, generationFilter, searchQuery);
+    final filters = _prepareFilters(
+      typeFilter,
+      abilitiesFilter,
+      generationFilter,
+      searchQuery,
+    );
 
     final QueryResult result = await client.query(
       QueryOptions(document: gql(query), variables: {'where': filters}),
@@ -103,23 +115,45 @@ class PokemonRepository {
   }
 
   static Future<List<PokemonAbility>> getAllAbilitiesWithOffset(
-      GraphQLClient client) async {
+      GraphQLClient client, int currentOffset) async {
     const String query = """
-      query obtainAllAbilities {
-        pokemon_v2_abilityname(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+      query obtainAllAbilities(\$offset: Int!) {
+        pokemon_v2_abilityname(where: {pokemon_v2_language: {name: {_eq: "en"}}}, offset: \$offset, limit: 60) {
           ability_id
           name
+        }
+      }
+
+    """;
+
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(query),
+      variables: {
+        'offset': currentOffset,
+      },
+    ));
+    final List<dynamic> data = result.data?['pokemon_v2_abilityname'] ?? [];
+    return data.map((json) => PokemonAbility.fromJson(json)).toList();
+  }
+
+  static Future<int> countAbilities(GraphQLClient client) async {
+    const String query = """
+      query getTotalAbilities {
+        pokemon_v2_abilityname_aggregate(distinct_on: ability_id) {
+          aggregate {
+            count
+          }
         }
       }
     """;
 
     final QueryResult result =
         await client.query(QueryOptions(document: gql(query)));
-    final List<dynamic> data = result.data?['pokemon_v2_abilityname'] ?? [];
-    return data.map((json) => PokemonAbility.fromJson(json)).toList();
+    return result.data?['pokemon_v2_abilityname_aggregate']['aggregate']
+        ['count'];
   }
 
-  // Methods without GraphQL
+// Methods without GraphQL
   static String _prepareSorting(
       int? selectedSortOption, int? selectedOrderOption) {
     final List<String> orderOptions = ['asc', 'desc'];
@@ -139,7 +173,10 @@ class PokemonRepository {
   }
 
   static Map<String, dynamic> _prepareFilters(
-      [List<String>? typeFilter, int? generationFilter, String? searchQuery]) {
+      [List<String>? typeFilter,
+      List<int>? abilitiesFilter,
+      int? generationFilter,
+      String? searchQuery]) {
     final filters = <String, dynamic>{};
     filters['pokemon_v2_pokemonforms'] = {
       'is_default': {'_eq': true}
@@ -167,6 +204,14 @@ class PokemonRepository {
           : filters['pokemon_v2_pokemonspecy'] = {
               'name': {'_ilike': '%$searchQuery%'}
             };
+    }
+
+    if (abilitiesFilter != null && abilitiesFilter.isNotEmpty) {
+      filters['pokemon_v2_pokemonabilities'] = {
+        'pokemon_v2_ability': {
+          'id': {'_in': abilitiesFilter}
+        }
+      };
     }
 
     return filters;
