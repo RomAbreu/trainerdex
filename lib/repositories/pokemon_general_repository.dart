@@ -115,10 +115,10 @@ class PokemonRepository {
   }
 
   static Future<List<PokemonAbility>> getAllAbilitiesWithOffset(
-      GraphQLClient client, int currentOffset) async {
+      GraphQLClient client, int currentOffset, String searchQuery) async {
     const String query = """
-      query obtainAllAbilities(\$offset: Int!) {
-        pokemon_v2_abilityname(where: {pokemon_v2_language: {name: {_eq: "en"}}}, offset: \$offset, limit: 60) {
+      query obtainAllAbilities(\$offset: Int!, \$where: pokemon_v2_abilityname_bool_exp) {
+        pokemon_v2_abilityname(where: \$where, offset: \$offset, limit: 60) {
           ability_id
           name
         }
@@ -126,20 +126,25 @@ class PokemonRepository {
 
     """;
 
-    final QueryResult result = await client.query(QueryOptions(
-      document: gql(query),
-      variables: {
-        'offset': currentOffset,
+    final QueryResult result =
+        await client.query(QueryOptions(document: gql(query), variables: {
+      'offset': currentOffset,
+      'where': {
+        'pokemon_v2_language': const {
+          'name': {'_eq': "en"}
+        },
+        if (searchQuery.isNotEmpty) 'name': {'_ilike': '%$searchQuery%'}
       },
-    ));
+    }));
     final List<dynamic> data = result.data?['pokemon_v2_abilityname'] ?? [];
     return data.map((json) => PokemonAbility.fromJson(json)).toList();
   }
 
-  static Future<int> countAbilities(GraphQLClient client) async {
+  static Future<int> countAbilities(
+      GraphQLClient client, String searchQuery) async {
     const String query = """
-      query getTotalAbilities {
-        pokemon_v2_abilityname_aggregate(distinct_on: ability_id) {
+      query getTotalAbilities(\$where: pokemon_v2_abilityname_bool_exp) {
+        pokemon_v2_abilityname_aggregate(distinct_on: ability_id, where: \$where) {
           aggregate {
             count
           }
@@ -147,8 +152,14 @@ class PokemonRepository {
       }
     """;
 
-    final QueryResult result =
-        await client.query(QueryOptions(document: gql(query)));
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(query),
+      variables: {
+        'where': {
+          if (searchQuery.isNotEmpty) 'name': {'_ilike': '%$searchQuery%'}
+        }
+      },
+    ));
     return result.data?['pokemon_v2_abilityname_aggregate']['aggregate']
         ['count'];
   }

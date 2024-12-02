@@ -37,20 +37,23 @@ class BottomSheetHeader extends StatelessWidget {
   }
 }
 
-class StyledSearchBar extends StatefulWidget {
+class GeneralSearchBar extends StatefulWidget {
   final void Function(String query) onSearchTextChanged;
   final String hintText;
-  const StyledSearchBar({
+  final EdgeInsetsGeometry? padding;
+
+  const GeneralSearchBar({
     super.key,
     required this.onSearchTextChanged,
     required this.hintText,
+    this.padding,
   });
 
   @override
-  State<StyledSearchBar> createState() => _StyledSearchBarState();
+  State<GeneralSearchBar> createState() => _GeneralSearchBarState();
 }
 
-class _StyledSearchBarState extends State<StyledSearchBar> {
+class _GeneralSearchBarState extends State<GeneralSearchBar> {
   late StreamSubscription<bool> keyboardSubscription;
   Timer? _debounce;
 
@@ -87,21 +90,19 @@ class _StyledSearchBarState extends State<StyledSearchBar> {
       ),
     );
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 5, bottom: 5, right: 5),
-        child: SizedBox(
-          height: 40,
-          child: TextField(
-            style: const TextStyle(fontSize: 14),
-            decoration: decoration,
-            onChanged: (text) {
-              if (_debounce?.isActive ?? false) _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 300), () {
-                widget.onSearchTextChanged(text);
-              });
-            },
-          ),
+    return Padding(
+      padding: widget.padding ?? const EdgeInsets.all(0),
+      child: SizedBox(
+        height: 40,
+        child: TextField(
+          style: const TextStyle(fontSize: 14),
+          decoration: decoration,
+          onChanged: (text) {
+            if (_debounce?.isActive ?? false) _debounce?.cancel();
+            _debounce = Timer(const Duration(milliseconds: 300), () {
+              widget.onSearchTextChanged(text);
+            });
+          },
         ),
       ),
     );

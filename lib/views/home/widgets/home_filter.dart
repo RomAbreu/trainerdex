@@ -296,6 +296,7 @@ class _AbilitiesViewState extends State<AbilitiesView> {
   final List<PokemonAbility> _abilities = [];
   int _totalAbilitiesCounter = 0;
   int _currentOffset = 0;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -329,6 +330,7 @@ class _AbilitiesViewState extends State<AbilitiesView> {
         await PokemonRepository.getAllAbilitiesWithOffset(
       GraphQLProvider.of(context).value,
       _currentOffset,
+      _searchQuery,
     );
 
     setState(() {
@@ -339,6 +341,7 @@ class _AbilitiesViewState extends State<AbilitiesView> {
   Future<void> refreshCounter() async {
     final int count = await PokemonRepository.countAbilities(
       GraphQLProvider.of(context).value,
+      _searchQuery,
     );
     setState(() {
       _totalAbilitiesCounter = count;
@@ -355,50 +358,70 @@ class _AbilitiesViewState extends State<AbilitiesView> {
     return widget.abilitiesFilterArgs.contains(id);
   }
 
+  void toggleAbilitySelection(int id) {
+    setState(() {
+      if (widget.abilitiesFilterArgs.contains(id)) {
+        widget.abilitiesFilterArgs.remove(id);
+      } else {
+        widget.abilitiesFilterArgs.add(id);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      controller: controller,
-      slivers: [
-        SliverGrid.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 4 / 1,
-          ),
-          itemCount: _abilities.length + 1,
-          itemBuilder: (context, index) {
-            if (index < _abilities.length) {
-              return AbilityItem(
-                ability: _abilities[index],
-                isSelected: () =>
-                    widget.abilitiesFilterArgs.contains(_abilities[index].id),
-                onTap: () {
-                  setState(
-                    () {
-                      (widget.abilitiesFilterArgs
-                              .contains(_abilities[index].id))
-                          ? widget.abilitiesFilterArgs
-                              .remove(_abilities[index].id)
-                          : widget.abilitiesFilterArgs
-                              .add(_abilities[index].id!);
-                    },
-                  );
-                  widget.refreshList();
-                  widget.fetchPokemons();
-                  widget.refreshCounter();
-                },
-              );
-            }
-            return null;
+    return Column(
+      children: [
+        GeneralSearchBar(
+          onSearchTextChanged: (String query) {
+            setState(() {
+              _searchQuery = query;
+              _currentOffset = 0;
+              _abilities.clear();
+            });
+            fetchAbilities();
+            refreshCounter();
           },
+          hintText: 'Search for abilities',
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
         ),
-        SliverToBoxAdapter(
-          child: (_totalAbilitiesCounter > _abilities.length)
-              ? const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : const SizedBox(height: 10),
+        Expanded(
+          child: CustomScrollView(
+            controller: controller,
+            slivers: [
+              SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 4 / 1,
+                ),
+                itemCount: _abilities.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < _abilities.length) {
+                    return AbilityItem(
+                      ability: _abilities[index],
+                      isSelected: () => widget.abilitiesFilterArgs
+                          .contains(_abilities[index].id),
+                      onTap: () {
+                        toggleAbilitySelection(_abilities[index].id!);
+                        widget.refreshList();
+                        widget.fetchPokemons();
+                        widget.refreshCounter();
+                      },
+                    );
+                  }
+                  return null;
+                },
+              ),
+              SliverToBoxAdapter(
+                child: (_totalAbilitiesCounter > _abilities.length)
+                    ? const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : const SizedBox(height: 10),
+              ),
+            ],
+          ),
         ),
       ],
     );
