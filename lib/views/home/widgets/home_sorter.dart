@@ -43,9 +43,7 @@ class _SorterBottomSheetContentState extends State<SorterBottomSheetContent> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
+    return SingleChildScrollView(
       child: Column(children: [
         const BottomSheetHeader(title: 'Sort by'),
         for (final option in _sortByOptions)
@@ -67,38 +65,35 @@ class _SorterBottomSheetContentState extends State<SorterBottomSheetContent> {
             value: _sortByOptions.indexOf(option),
             groupValue: _optionSelected,
           ),
-        const Spacer(),
+        const SizedBox(height: 10),
         const Text('Order',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             for (final option in _sortOrderOptions)
-              Expanded(
-                child: SortOptionCard(
-                  option: option,
-                  isSelected:
-                      _sortOrderOptions.indexOf(option) == _orderSelected,
-                  onTap: () {
-                    setState(() {
-                      _orderSelected = _sortOrderOptions.indexOf(option);
-                    });
-                    widget.onChangedOrderOption(_orderSelected);
-                  },
-                  onChanged: (int? value) {
-                    setState(() {
-                      _orderSelected = value!;
-                    });
-                    widget.onChangedOrderOption(_orderSelected);
-                  },
-                  value: _sortOrderOptions.indexOf(option),
-                  groupValue: _orderSelected,
-                ),
+              SortOptionCard(
+                option: option,
+                isSelected: _sortOrderOptions.indexOf(option) == _orderSelected,
+                onTap: () {
+                  setState(() {
+                    _orderSelected = _sortOrderOptions.indexOf(option);
+                  });
+                  widget.onChangedOrderOption(_orderSelected);
+                },
+                onChanged: (int? value) {
+                  setState(() {
+                    _orderSelected = value!;
+                  });
+                  widget.onChangedOrderOption(_orderSelected);
+                },
+                value: _sortOrderOptions.indexOf(option),
+                groupValue: _orderSelected,
               ),
           ],
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 20),
       ]),
     );
   }
@@ -141,9 +136,8 @@ class SortOptionCard extends StatelessWidget {
               onChanged: onChanged,
               toggleable: true,
             ),
-            const Spacer(),
             Text(option, style: const TextStyle(fontSize: 17)),
-            const SizedBox(width: 30),
+            const SizedBox(width: 20),
           ],
         ),
       ),

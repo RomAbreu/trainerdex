@@ -70,7 +70,7 @@ class _InformationSideState extends State<InformationSide> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              constraints: const BoxConstraints(maxWidth: 173, maxHeight: 60),
+              constraints: const BoxConstraints(maxWidth: 150, maxHeight: 60),
               padding: const EdgeInsets.only(top: 10),
               child: AutoSizeText(
                 Utils.formatPokemonName(widget.pokemon),
@@ -83,7 +83,7 @@ class _InformationSideState extends State<InformationSide> {
             Row(
               children: [
                 for (final type in widget.pokemon.types)
-                  TypeChip(type: type, fontSize: 9.5)
+                  TypeChip(type: type, fontSize: 9)
               ],
             ),
           ],
@@ -141,5 +141,5 @@ class _InformationSideState extends State<InformationSide> {
       fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54);
 
   final TextStyle _idStyle = const TextStyle(
-      fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black45);
+      fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black45);
 }
