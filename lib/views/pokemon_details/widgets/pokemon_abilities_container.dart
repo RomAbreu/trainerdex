@@ -57,39 +57,33 @@ class PokemonAbilitiesContainer extends StatelessWidget {
           onTap: () {},
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Stack(
-              alignment: AlignmentDirectional.centerStart,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.info_outline_rounded, color: pokemonColor, size: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: ability.name,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.manrope().fontFamily,
-                              color: pokemonColor,
-                              fontSize: ability.name.length > 12 ? 12 : 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (ability.isHidden)
-                            TextSpan(
-                              text: ' (Hidden)',
-                              style: TextStyle(
-                                fontFamily: GoogleFonts.manrope().fontFamily,
-                                color: Colors.grey,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                        ],
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: ability.name,
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.manrope().fontFamily,
+                          color: pokemonColor,
+                          fontSize: ability.name.length > 12 ? 12 : 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                      if (ability.isHidden)
+                        TextSpan(
+                          text: ' (Hidden)',
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.manrope().fontFamily,
+                            color: Colors.grey,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),

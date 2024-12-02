@@ -10,6 +10,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function(int) onChangedGeneration;
   final int pokemonsCounter;
   final Future<void> Function() refreshCounter;
+  final VoidCallback updateShowFavorites;
+  final bool showFavorites;
 
   const HomeAppBar({
     super.key,
@@ -21,6 +23,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onChangedGeneration,
     required this.pokemonsCounter,
     required this.refreshCounter,
+    required this.updateShowFavorites,
+    required this.showFavorites,
   });
 
   @override
@@ -28,24 +32,42 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: const Text('TrainerDex'),
       actions: <Widget>[
-        IconButton(
-          onPressed: () {},
-          icon: Image.asset('assets/icon-pokeball-closed.png'),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0).animate(animation),
+              child: child,
+            );
+          },
+          child: IconButton(
+            key: ValueKey<bool>(showFavorites),
+            onPressed: () {
+              updateShowFavorites();
+              refreshList();
+              fetchPokemons();
+              refreshCounter();
+            },
+            icon: showFavorites
+                ? Image.asset('assets/pokeball_selected.png', width: 32)
+                : Image.asset('assets/pokeball_unselected.png', width: 32),
+          ),
         ),
         IconButton(
           onPressed: () {
             showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) => FilterBottomSheetContent(
-                      fetchPokemons: fetchPokemons,
-                      refreshList: refreshList,
-                      updateOffset: updateOffset,
-                      typeFilterArgs: typeFilterArgs,
-                      selectedGeneration: selectedGeneration,
-                      onChangedGeneration: onChangedGeneration,
-                      pokemonsCounter: pokemonsCounter,
-                      refreshCounter: refreshCounter,
-                    ));
+              context: context,
+              builder: (BuildContext context) => FilterBottomSheetContent(
+                fetchPokemons: fetchPokemons,
+                refreshList: refreshList,
+                updateOffset: updateOffset,
+                typeFilterArgs: typeFilterArgs,
+                selectedGeneration: selectedGeneration,
+                onChangedGeneration: onChangedGeneration,
+                pokemonsCounter: pokemonsCounter,
+                refreshCounter: refreshCounter,
+              ),
+            );
           },
           icon: const Icon(Icons.filter_alt_outlined),
           iconSize: 35,

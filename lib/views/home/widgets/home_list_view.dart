@@ -11,6 +11,8 @@ class HomeListview extends StatefulWidget {
   final int pokemonsCounter;
   final Future<void> Function() fetchPokemons;
   final Future<void> Function() refreshCounter;
+  final bool showFavorites;
+  final void Function(int) removePokemonWhenDisplayingFavorites;
 
   const HomeListview({
     super.key,
@@ -20,6 +22,8 @@ class HomeListview extends StatefulWidget {
     required this.updateOffset,
     required this.pokemonsCounter,
     required this.refreshCounter,
+    required this.showFavorites,
+    required this.removePokemonWhenDisplayingFavorites,
   });
 
   @override
@@ -64,7 +68,13 @@ class _HomeListviewState extends State<HomeListview> {
       itemCount: widget.pokemons.length + 1,
       itemBuilder: (context, index) {
         if (index < widget.pokemons.length) {
-          return ListItem(pokemon: widget.pokemons[index]);
+          return ListItem(
+            index: index,
+            pokemons: widget.pokemons,
+            pokemon: widget.pokemons[index],
+            removePokemonWhenDisplayingFavorites:
+                widget.removePokemonWhenDisplayingFavorites,
+          );
         }
         if (widget.pokemonsCounter > widget.pokemons.length) {
           return const Padding(
@@ -72,15 +82,25 @@ class _HomeListviewState extends State<HomeListview> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-        return null;
+        return const SizedBox.shrink();
       },
     );
   }
 }
 
 class ListItem extends StatelessWidget {
+  final int index;
   final Pokemon pokemon;
-  const ListItem({super.key, required this.pokemon});
+  final List<Pokemon> pokemons;
+  final void Function(int) removePokemonWhenDisplayingFavorites;
+
+  const ListItem({
+    super.key,
+    required this.index,
+    required this.pokemon,
+    required this.pokemons,
+    required this.removePokemonWhenDisplayingFavorites,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +119,10 @@ class ListItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PokemonDetailsView(pokemon: pokemon),
+                  builder: (context) => PokemonDetailsView(
+                    pokemon: pokemon,
+                    pokemons: pokemons,
+                  ),
                 ),
               );
             },
@@ -107,7 +130,12 @@ class ListItem extends StatelessWidget {
               children: [
                 ImageSide(pokemon: pokemon, color: mainColor.withOpacity(0.7)),
                 const SizedBox(width: 10),
-                InformationSide(pokemon: pokemon),
+                InformationSide(
+                  index: index,
+                  pokemon: pokemon,
+                  removePokemonWhenDisplayingFavorites:
+                      removePokemonWhenDisplayingFavorites,
+                ),
               ],
             ),
           ),

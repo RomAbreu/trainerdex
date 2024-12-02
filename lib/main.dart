@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:trainerdex/constants/app_theme.dart';
+import 'package:trainerdex/shared_preferences_helper.dart';
 import 'package:trainerdex/views/home/home_view.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesHelper.instance.initPrefs();
   runApp(const MyApp());
 }
 
