@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:trainerdex/constants/app_values.dart';
 import 'package:trainerdex/models/pokemon.dart';
 import 'package:trainerdex/models/pokemon_ability.dart';
@@ -38,6 +39,7 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
   PokemonNode? _evolutionChain;
   PokemonInitialData _initialData = PokemonInitialData();
   bool _error = false;
+  final screenshotController = ScreenshotController();
 
   int _selectedPage = 0;
   final animationDuration = const Duration(milliseconds: 200);
@@ -92,32 +94,34 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
           SliverAppBar(
             shadowColor: Utils.darkenColor(widget.pokemon.color, 0.5),
             expandedHeight: 430.0,
-            title: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: Utils.formatPokemonName(widget.pokemon),
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.manrope().fontFamily,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Utils.lightenColor(
-                        widget.pokemon.color,
-                        AppValues.kTextLightenFactor,
+            title: FittedBox(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: Utils.formatPokemonName(widget.pokemon),
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.manrope().fontFamily,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Utils.lightenColor(
+                          widget.pokemon.color,
+                          AppValues.kTextLightenFactor,
+                        ),
                       ),
                     ),
-                  ),
-                  TextSpan(
-                    text:
-                        ' #${widget.pokemon.speciesId.toString().padLeft(3, '0')}',
-                    style: TextStyle(
-                      color: Utils.lightenColor(
-                        widget.pokemon.color,
-                        AppValues.kTextLightenFactor,
+                    TextSpan(
+                      text:
+                          ' #${widget.pokemon.speciesId.toString().padLeft(3, '0')}',
+                      style: TextStyle(
+                        color: Utils.lightenColor(
+                          widget.pokemon.color,
+                          AppValues.kTextLightenFactor,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             pinned: true,
@@ -127,6 +131,26 @@ class _PokemonDetailsViewState extends State<PokemonDetailsView> {
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share_rounded),
+                color: Utils.lightenColor(
+                  widget.pokemon.color,
+                  AppValues.kTextLightenFactor,
+                ),
+                onPressed: () async {
+                  final image = await screenshotController.captureFromWidget(
+                    BackgroundSliverAppBar(
+                      pokemon: widget.pokemon,
+                      option: widget.option,
+                      isForScreenShot: true,
+                    ),
+                  );
+
+                  Utils.shareImage(image);
+                },
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: BackgroundSliverAppBar(
                 pokemon: widget.pokemon,
