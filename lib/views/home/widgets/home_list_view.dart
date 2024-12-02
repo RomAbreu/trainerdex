@@ -70,6 +70,7 @@ class _HomeListviewState extends State<HomeListview> {
         if (index < widget.pokemons.length) {
           return ListItem(
             index: index,
+            pokemons: widget.pokemons,
             pokemon: widget.pokemons[index],
             removePokemonWhenDisplayingFavorites:
                 widget.removePokemonWhenDisplayingFavorites,
@@ -90,12 +91,14 @@ class _HomeListviewState extends State<HomeListview> {
 class ListItem extends StatelessWidget {
   final int index;
   final Pokemon pokemon;
+  final List<Pokemon> pokemons;
   final void Function(int) removePokemonWhenDisplayingFavorites;
 
   const ListItem({
     super.key,
     required this.index,
     required this.pokemon,
+    required this.pokemons,
     required this.removePokemonWhenDisplayingFavorites,
   });
 
@@ -116,7 +119,10 @@ class ListItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PokemonDetailsView(pokemon: pokemon),
+                  builder: (context) => PokemonDetailsView(
+                    pokemon: pokemon,
+                    pokemons: pokemons,
+                  ),
                 ),
               );
             },
