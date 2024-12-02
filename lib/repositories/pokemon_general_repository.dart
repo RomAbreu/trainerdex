@@ -6,9 +6,7 @@ import 'package:trainerdex/models/pokemon_ability.dart';
 
 class PokemonRepository {
   static Future<List<Pokemon>> getPokemonsWithOffset(
-      GraphQLClient client, 
-      bool fetchFavorites,
-      int offset,
+      GraphQLClient client, bool fetchFavorites, int offset,
       [List<String>? typeFilter,
       List<int>? abilitiesFilter,
       int? generationFilter,
@@ -94,7 +92,6 @@ class PokemonRepository {
     return data.map((json) => GenerationInfo.fromJson(json)).toList();
   }
 
-
   static Future<int> countPokemons(
     GraphQLClient client,
     bool fetchFavorites, [
@@ -115,7 +112,7 @@ class PokemonRepository {
 
     final filters = _prepareFilters(
       fetchFavorites,
-      SharedPreferencesHelper.instance.getFavoritesPokemons()
+      SharedPreferencesHelper.instance.getFavoritesPokemons(),
       typeFilter,
       abilitiesFilter,
       generationFilter,
@@ -202,8 +199,7 @@ class PokemonRepository {
   }
 
   static Map<String, dynamic> _prepareFilters(
-      bool fetchFavorites,
-      List<String> favoritePokemons,
+      bool fetchFavorites, List<String> favoritePokemons,
       [List<String>? typeFilter,
       List<int>? abilitiesFilter,
       int? generationFilter,
@@ -243,7 +239,8 @@ class PokemonRepository {
           'id': {'_in': abilitiesFilter}
         }
       };
-    
+    }
+
     if (fetchFavorites) {
       filters['id'] = {'_in': favoritePokemons};
     }

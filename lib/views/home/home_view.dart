@@ -152,7 +152,7 @@ class _HomeViewState extends State<HomeView> {
         refreshList: refreshList,
         updateOffset: updateOffset,
         pokemonsCounter: _totalPokemonsCounter,
-        refreshCounter: countPokemons,
+        refreshCounter: refreshCounter,
         showFavorites: _showFavorites,
         removePokemonWhenDisplayingFavorites:
             _removePokemonWhenDisplayingFavorites,
